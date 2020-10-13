@@ -27,6 +27,7 @@ int elev=0;  // Elevation of view angle
 int flashlight=1; // Light It Up! | light_flash
 int candle=1; // Light It Up! | light_candle
 int modeL=0; // Lighting Mode
+double pi=3.1415926; // PI
 //----Directional-Light-----
 struct Lighting{
     int ambient   =  30;  // Lighting (%)
@@ -34,17 +35,13 @@ struct Lighting{
     int emission  =   0;
     int specular  =   0;
 };
-//----------PRINT-----------
-void Text(char const *string) {
-    char const *s; //string
-
-    //glWindowPos3f(0, 5, 0); // String Position
-
-    for (s = string; *s != '\0'; s++) {
-        
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *s); // Text Font & String
-    }
-}
+//---------ROTATION---------
+struct Rotation{
+    double rotAngle;
+    double rotX;
+    double rotY;
+    double rotZ;
+};
 //-------ICOSAHEDRON--------
 //--------------------------
 //______PUMPKIN + FACE______
@@ -66,7 +63,7 @@ void Text(char const *string) {
 void drawIco (float x, float y, float z,   // VBO (Vertex Buffer Object)
               float s, float angle) {
     
-    // (A) Vertex Index Constant
+    // (A) Vertex Index & Constant
     
     const int N = 60;
     
@@ -114,36 +111,103 @@ void drawIco (float x, float y, float z,   // VBO (Vertex Buffer Object)
     
     // (B) Draw Pumpkin
     glPushMatrix();
-    glTranslatef(x, y, z);
-    glScalef(s, s, s);
+    
+    glTranslatef(x, y, z);       // Translate 
+    
+    glScalef(s, s, s);           // Size
+    
     glRotatef(angle, 1, 0, 0);
+    //glRotatef(angle, 0, 0, 1); // Z axis
+    
     glDrawElements(GL_TRIANGLES, N, GL_UNSIGNED_BYTE, index);
+    
     glPopMatrix();
     
     // (C) Disable Vertex Array & Color Array
         // * glDisableClientState(GL_VERTEX_ARRAY);
         // * glDisableClientState(GL_COLOR_ARRAY);
 }
-
 //---------CYLINDER---------
 //--------------------------
 //_________STEMS x 2________
-
+//        ________        //
+//       /   /   /        //
+//      /   /   /         //
+//      |   |   |         //
+//      |   |   |         //
+//      |   |   |         //
+//--------------------------
 // COLOR = 128, 128, 0 // OLIVE
-
 // * ADD Shine + Lines (Texture)
 
-void drawCylin(){
+static void cylinder (double radius, double height, int num,
+                      double xPos, double yPos, double zPos, Rotation rot){
+    //  Transformation
+    glPushMatrix();
+    //  Translation Double
+    glTranslated(xPos,yPos,zPos); //TranslateD = Double, F = float
+    // Rotation Double
+    glRotated(rot.rotAngle,rot.rotX,rot.rotY,rot.rotZ); // Stem Rotation
     
+    // Pumpkin Stem - Top & Bottom
+    
+    //Determine pt of A
+        double a1_z = radius;
+        double a1_x = 0;
+        double a1_y = 0;
+        double a1_h = height;
+
+        glBegin(GL_TRIANGLES);
+        for (int i = 0; num - 2; i++){
+        
+            double angle1 = 2 * pi * i / num; // Num - sides of polygon for base or Vertex count
+            double angle2 = 2 * pi * (i+1) / num;
+            
+            // Z axis
+            double z1 = cos(angle1) * radius; // Radius of Cylinder
+            double x1 = sin(angle1) * radius; // X Axis
+            
+            // Y Axis - Height
+            double yLow = 0;
+            double yHigh = height;
+            
+            double z2 = cos(angle2) * radius; // Radius of Cylinder
+            double x2 = sin(angle2) * radius; // X Axis
+
+            // Triangles - Bottom & Top
+            glVertex3f(a1_x, a1_y, a1_z);
+            glVertex3f(x1, yLow, z1);
+            glVertex3f(x2, yLow, z2);
+            glVertex3f(a1_x, a1_h, a1_z);
+            glVertex3f(x1, yHigh, z1);
+            glVertex3f(x2, yHigh, z2);
+        }
+    glEnd();
+    
+    //  Undo transformations
+    glPopMatrix();
 }
 
+
+//====================================================================
 //-------FLASHLIGHT---------
 /* Follow Light With Mouse */
 /* Change Color on Key pressed */  // Yellow/White, Purple, Green
 
 //---------CANDLE-----------
 /* Change Color on Key pressed */  // Yellow, Green, Purple
+//====================================================================
 
+
+//----------PRINT-----------
+void Text(char const *string) {
+    char const *s; //string
+
+    for (s = string; *s != '\0'; s++) {
+        
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *s); // Text Font & String
+    }
+}
 //---------DISPLAY----------
 void display()
 {
@@ -155,9 +219,10 @@ void display()
 
     // --- Draw Pumpkin ---
     
-    // --- Draw Stem ---
+    // ---  Draw Stems  ---
     
     
+    //--------------------------
     // --- LIGHTS ---
     switch (modeL){                                     // Switch Light Colors
         
@@ -211,7 +276,7 @@ void display()
 //---------RESHAPE----------
 void reshape(int width,int height)
 {
-   double ratio = (height > 0) ? (double)width/height : 1; //  Ratio of the width to the height of the window
+   // double ratio = (height > 0) ? (double)width/height : 1; //  Ratio of the width to the height of the window
     
     // ORTHO vs. PERSP
    
