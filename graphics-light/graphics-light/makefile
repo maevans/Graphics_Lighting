@@ -1,5 +1,5 @@
-# Scene In 3D
-EXE=scene
+# Jack O' Lantern - Light
+EXE=light
 
 # Main target
 all: $(EXE)
@@ -30,8 +30,8 @@ endif
 	g++ -c $(CFLG) $<
 
 #  Link
-scene:scene.o
-	gcc -O3 -o $@ $^   $(LIBS)
+light:light.o
+	g++ -O3 -o $@ $^   $(LIBS)
 
 #  Clean
 clean:
