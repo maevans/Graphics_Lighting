@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		B8030DE82535168800A7346C /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8030DE72535168800A7346C /* light.cpp */; };
+		B8030DF2253518C600A7346C /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8030DF1253518C600A7346C /* GLUT.framework */; };
+		B8030DF4253518D000A7346C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8030DF3253518D000A7346C /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,8 @@
 /* Begin PBXFileReference section */
 		B8030DE42535168800A7346C /* graphics-light */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "graphics-light"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8030DE72535168800A7346C /* light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
+		B8030DF1253518C600A7346C /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		B8030DF3253518D000A7346C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +36,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8030DF4253518D000A7346C /* OpenGL.framework in Frameworks */,
+				B8030DF2253518C600A7346C /* GLUT.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +49,7 @@
 			children = (
 				B8030DE62535168800A7346C /* graphics-light */,
 				B8030DE52535168800A7346C /* Products */,
+				B8030DF0253518C600A7346C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -60,6 +67,15 @@
 				B8030DE72535168800A7346C /* light.cpp */,
 			);
 			path = "graphics-light";
+			sourceTree = "<group>";
+		};
+		B8030DF0253518C600A7346C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B8030DF3253518D000A7346C /* OpenGL.framework */,
+				B8030DF1253518C600A7346C /* GLUT.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
