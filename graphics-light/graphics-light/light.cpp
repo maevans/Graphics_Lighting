@@ -42,13 +42,22 @@ struct Rotation{
     double rotY;
     double rotZ;
 };
+//----------SPHERE----------
+//--------------------------
+//______PUMPKIN + FACE______
+//                        //
+//        /_\ /_\         //
+//          /_\           //
+//      /\/\/\/\/\        //
+//      \/\/\/\/\/        //
+//--------------------------
 
-// Store Triangles Needed for Sphere
-    // Update Current Ptr & Index
- double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
+//______Store Triangles Needed for Sphere______
+double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
                                                  double x2, double y2, double z2,
                                                  double x3, double y3, double z3,
                                                  double r, double g, double b) {
+     // Update Current Ptr & Index
      current_ptr[0] = x1;
      current_ptr[1] = y1;
      current_ptr[2] = z1;
@@ -80,9 +89,10 @@ struct Rotation{
      //Call Strore Sphere - Find Triangles to remove
 
  };
-
-    //Fetch Array of ptrs
+//______Fetch Array of ptrs______
 void sphere_render(double *current_ptr, double x, double y, double z) {
+    // distance between pt a and b along the x, y and z axes
+    // sqrt(d_x^2 + d_y^2) = length
     for(int i = 0; i < LEN.current_ptr; i++ ) {
           //glvertex3f -> Cnt ptr & Vertices
              // Triangles
@@ -99,10 +109,9 @@ void sphere_render(double *current_ptr, double x, double y, double z) {
           
       }
     //double current ptr
-  };
-
-
- double *sphere_init(int *count, double radius) {
+};
+//______Initialize Sphere______
+double *sphere_init(int *count, double radius) {
                     
      glPushMatrix();                                            //  Transformation
 
@@ -148,10 +157,10 @@ void sphere_render(double *current_ptr, double x, double y, double z) {
              current_ptr = store_sphere_triangle(current_ptr, x1, y1, z1, x2, y2, z2, x3 y3, z3, r, g, b);
          }
      }
-     //  End
-     glEnd();
-     //  Undo Transformations
-     glPopMatrix();
+     
+     glEnd();                                                    //  End
+     
+     glPopMatrix();                                              //  Undo Transformations
 }
 
 //---------CYLINDER---------
@@ -166,7 +175,6 @@ void sphere_render(double *current_ptr, double x, double y, double z) {
 //--------------------------
 // COLOR = 128, 128, 0 // OLIVE
 // * ADD Shine + Lines (Texture)
-
 static void cylinder (double radius, double height, int num,
                       double xPos, double yPos, double zPos, Rotation rot){
     //  Transformation
@@ -176,9 +184,12 @@ static void cylinder (double radius, double height, int num,
     // Rotation Double
     glRotated(rot.rotAngle,rot.rotX,rot.rotY,rot.rotZ); // Stem Rotation
     
-    // Pumpkin Stem - Top & Bottom
+    // Pumpkin Stem - Sides
+    glBegin(GL_TRIANGLES);
+    glEnd();
     
-    //Determine pt of A
+    //Pumpkin Stem - Top & Bottom
+        // Determine pt of A
         double a1_z = radius;
         double a1_x = 0;
         double a1_y = 0;
