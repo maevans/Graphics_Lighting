@@ -155,6 +155,23 @@ double *sphere_init(int *count, double radius) {
              double z4 = radius * cos(theta1);
 
              // Triangles
+             
+             //              z
+             //              |
+             //               __
+             //             /|
+             //              |
+             //              |
+             //              |    *      \
+             //              | _ _| _ _ _ |    _y
+             //             / \c  |s     /                    p3 --- p2
+             //            /   \o |i                           |     |
+             //           /     \s|n      z=sin(v)            p0 --- p1
+             //         |/__              y=cos(v) *sin(u)
+             //                           x=cos(v) *cos(u)
+             //       /
+             //      x
+             //
              current_ptr = store_sphere_triangle(current_ptr, x1, y1, z1, x2, y2, z2, x3 y3, z3, r, g, b);
          }
      }
