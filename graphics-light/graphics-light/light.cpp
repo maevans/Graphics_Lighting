@@ -20,14 +20,15 @@
 #else
 #include <GL/glut.h>
 #endif
-//--------------------------
-double rot;  // Rotation Angle
-int angle=0; // Azimuth of view angle
-int elev=0;  // Elevation of view angle
-int flashlight=1; // Light It Up! | light_flash
-int candle=1; // Light It Up! | light_candle
-int modeL=0; // Lighting Mode
-double pi=3.1415926535; // PI
+//---------------------------------------------------------
+double rot;                // Rotation Angle
+int angle=0;               // Azimuth of view angle
+int elev=0;                // Elevation of view angle
+int flashlight=1;          // Light It Up! | light_flash
+int candle=1;              // Light It Up! | light_candle
+int modeL=0;               // Lighting Mode
+double pi=3.1415926535;    // PI
+//---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
     int ambient   =  30;  // Lighting (%)
