@@ -27,7 +27,7 @@ int elev=0;  // Elevation of view angle
 int flashlight=1; // Light It Up! | light_flash
 int candle=1; // Light It Up! | light_candle
 int modeL=0; // Lighting Mode
-double pi=3.1415926; // PI
+double pi=3.1415926535; // PI
 //----Directional-Light-----
 struct Lighting{
     int ambient   =  30;  // Lighting (%)
@@ -42,91 +42,118 @@ struct Rotation{
     double rotY;
     double rotZ;
 };
-//-------ICOSAHEDRON--------
-//--------------------------
-//______PUMPKIN + FACE______
-//                        //
-//        /_\ /_\         //
-//          /_\           //
-//      /\/\/\/\/\        //
-//      \/\/\/\/\/        //
-//--------------------------
-// COLOR = 210, 105, 30 // CHOCOLATE // OUTSIDE
-// COLOR = 205, 133, 63 // PERU      // INSIDE
 
-// * ADD Shine + Lines (Texture)
+// Store Triangles Needed for Sphere
+    // Update Current Ptr & Index
+ double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
+                                                 double x2, double y2, double z2,
+                                                 double x3, double y3, double z3,
+                                                 double r, double g, double b) {
+     current_ptr[0] = x1;
+     current_ptr[1] = y1;
+     current_ptr[2] = z1;
 
-/* Coordinates = x, y, z
- * s = Size
- * angle => rotate about an axis (x/y/z)
- */
-void drawIco (float x, float y, float z,   // VBO (Vertex Buffer Object)
-              float s, float angle) {
-    
-    // (A) Vertex Index & Constant
-    
-    const int N = 60;
-    
-    const unsigned char index[] =
-       {
-           0, 14, 10,    0, 14, 1,    1, 15, 14,    1, 15, 2,    2, 16, 15,    2, 16, 3,    3, 17, 16,    3, 17, 4,    4, 11, 17,
-          10, 14, 12,   12, 14, 18,   14, 18, 15,   15, 18, 19,  15, 16, 19,   16, 19, 20,  16, 17, 20,   17, 21, 20,  17, 11, 21,  11, 13, 21,
-           12, 18, 5,    5, 18, 6,     6, 18, 19,    19, 6, 7,    7, 19, 20,    20, 7, 8,    8, 20, 21,    21, 8, 9,   9, 21, 13,
-           
-       };
-    
-    // (A) Vertex Coordiantes
-    
-    // smooth icosahedron has 14 non-shared (0 to 13) and
-    // 8 shared vertices (14 to 21) (total 22 vertices)
-    //-----------------------------
-    //   00  01  02  03  04      //
-    //   /\  /\  /\  /\  /\      //
-    //  /  \/  \/  \/  \/  \     //
-    // 10--14--15--16--17--11    //
-    //  \  /\  /\  /\  /\  /\    //
-    //   \/  \/  \/  \/  \/  \   //
-    //  12--18--19--20--21--13   //
-    //    \  /\  /\  /\  /\  /   //
-    //     \/  \/  \/  \/  \/    //
-    //     05  06  07  08  09    //
-    //-----------------------------
-    
-        /// Multidimensional Array
-        /// Calculate Product & Cross Product
-        /// Ex.  cp[0] = y1 * z2 - z1 * y2;
-           /// cp[1] = z1 * x2 - x1 * z2;
-           /// cp[2] = x1 * y2 - y1 * x2;
-        /// Normal = cp / length
-    
-    
-    // (A) Vertex Colors
-    
-    // (B) Define Vertices & Colors
-        // * glVertexPointer();
-        // * glColorPointer();
-    
-        // * glEnableClientState(GL_VERTEX_ARRAY);
-        // * glEnableClientState(GL_COLOR_ARRAY);
-    
-    // (B) Draw Pumpkin
-    glPushMatrix();
-    
-    glTranslatef(x, y, z);       // Translate 
-    
-    glScalef(s, s, s);           // Size
-    
-    glRotatef(angle, 1, 0, 0);
-    //glRotatef(angle, 0, 0, 1); // Z axis
-    
-    glDrawElements(GL_TRIANGLES, N, GL_UNSIGNED_BYTE, index);
-    
-    glPopMatrix();
-    
-    // (C) Disable Vertex Array & Color Array
-        // * glDisableClientState(GL_VERTEX_ARRAY);
-        // * glDisableClientState(GL_COLOR_ARRAY);
+     current_ptr[3] = x1 / radius;
+     current_ptr[4] = y1 / radius;
+     current_ptr[5] = z1 / radius;
+
+     current_ptr[6] = x2;
+     current_ptr[7] = y2;
+     current_ptr[8] = z2;
+
+     current_ptr[9] = x2 / radius;
+     current_ptr[10] = y2 / radius;
+     current_ptr[11] = z2 / radius;
+
+     current_ptr[12] = x3;
+     current_ptr[13] = y3;
+     current_ptr[14] = z3;
+
+     current_ptr[15] = x3 / radius;
+     current_ptr[16] = y3 / radius;
+     current_ptr[17] = z3 / radius;
+
+     current_ptr[18] = r;
+     current_ptr[19] = g;
+     current_ptr[20] = b;
+
+     //Call Strore Sphere - Find Triangles to remove
+
+ };
+
+    //Fetch Array of ptrs
+void sphere_render(double *current_ptr, double x, double y, double z) {
+    for(int i = 0; i < LEN.current_ptr; i++ ) {
+          //glvertex3f -> Cnt ptr & Vertices
+             // Triangles
+          glBegin(GL_TRIANGLES);
+             glVertex3f(current_ptr[0], current_ptr[1], current_ptr[2]); // Vertices
+             glNormal3f(current_ptr[3], current_ptr[4], current_ptr[5]); // Normal
+             
+             glVertex3f(current_ptr[6], current_ptr[7], current_ptr[8]);
+             glNormal3f(current_ptr[9], current_ptr[10], current_ptr[11]);
+             
+             glVertex3f(current_ptr[12], current_ptr[13], current_ptr[14]);
+             glNormal3f(current_ptr[15], current_ptr[16], current_ptr[17]);
+          glEnd();
+          
+      }
+    //double current ptr
+  };
+
+
+ double *sphere_init(int *count, double radius) {
+                    
+     glPushMatrix();                                            //  Transformation
+
+     int num = 100;                                             //  Size of Array
+     
+     int num_doubles = 2 * num * num;
+     
+     int size_of_vertex = sizeof(double) * (3 + 3 + 3);         //  Color + Vertex + Normal
+     
+     double *sphere_buffer = (double *) malloc(num_doubles * size_of_vertex);
+     double *current_ptr = sphere_buffer;
+
+     double theta_arc_length = pi / (num);
+     double phi_arc_length = 2 * pi / (num);
+     
+     //  Begin
+     glBegin(GL_TRIANGLES);
+     for (int j = 0; j < num; ++j) {
+         for (int i = 0; i < num; ++i) {
+             double theta1 = theta_arc_length * i;
+             double theta2 = theta_arc_length * (i + 1);
+
+             double phi1 = phi_arc_length * j;
+             double phi2 = phi_arc_length * (j + 1);
+
+             double x1 = radius * sin(theta1) * cos(phi1);
+             double y1 = radius * sin(theta1) * sin(phi1);
+             double z1 = radius * cos(theta1);
+
+             double x2 = radius * sin(theta2) * cos(phi1);
+             double y2 = radius * sin(theta2) * sin(phi1);
+             double z2 = radius * cos(theta2);
+
+             double x3 = radius * sin(theta2) * cos(phi2);
+             double y3 = radius * sin(theta2) * sin(phi2);
+             double z3 = radius * cos(theta2);
+
+             double x4 = radius * sin(theta1) * cos(phi2);
+             double y4 = radius * sin(theta1) * sin(phi2);
+             double z4 = radius * cos(theta1);
+
+             // Triangles
+             current_ptr = store_sphere_triangle(current_ptr, x1, y1, z1, x2, y2, z2, x3 y3, z3, r, g, b);
+         }
+     }
+     //  End
+     glEnd();
+     //  Undo Transformations
+     glPopMatrix();
 }
+
 //---------CYLINDER---------
 //--------------------------
 //_________STEMS x 2________
@@ -335,99 +362,99 @@ int main(int argc,char* argv[])
 
 
 
-
-
-
-
-
-
-
 //_____________________________________________________________________________________________________
 
-// double pi=3.14159; // Pi
 
-// double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
-//                                                 double x2, double y2, double z2,
-//                                                 double x3, double y3, double z3,
-//                                                 double r, double g, double b) {
-//     current_ptr[0] = x1;
-//     current_ptr[1] = y1;
-//     current_ptr[2] = z1;
-//     current_ptr[3] = x1 / radius;
-//     current_ptr[4] = y1 / radius;
-//     current_ptr[5] = z1 / radius;
-//     current_ptr[9] = x2;
-//     current_ptr[4] = y2;
-//     current_ptr[5] = z2;
-//     current_ptr[3] = x1 / radius;
-//     current_ptr[4] = y1 / radius;
-//     current_ptr[5] = z1 / radius;
-//     current_ptr[6] = x1;
-//     current_ptr[1] = y1;
-//     current_ptr[2] = z1;
-//     current_ptr[3] = x1 / radius;
-//     current_ptr[4] = y1 / radius;
-//     current_ptr[5] = z1 / radius;
-//     current_ptr[6] = r;
-//     current_ptr[7] = g;
-//     current_ptr[8] = b;
+//-------ICOSAHEDRON--------
+//--------------------------
+//______PUMPKIN + FACE______
+//                        //
+//        /_\ /_\         //
+//          /_\           //
+//      /\/\/\/\/\        //
+//      \/\/\/\/\/        //
+//--------------------------
+// COLOR = 210, 105, 30 // CHOCOLATE // OUTSIDE
+// COLOR = 205, 133, 63 // PERU      // INSIDE
 
-//  }
+// * ADD Shine + Lines (Texture)
 
-//  void sphere_render;
-
-// //----------------------------------------------------------------------------
-// double *sphere_init(int *count, double radius) {
-
-//     int num = 100;
-//     //Size of Array
-//     int num_doubles = 2 * num * num;
-//     int size_of_vertex = sizeof(double) * (3 + 3 + 3); //Color + Vertex + Normal
-//     double *sphere_buffer = (double *) malloc(num_doubles * size_of_vertex);
-//     double *current_ptr = sphere_buffer;
-
-//     double theta_arc_length = pi / (num);
-//     double phi_arc_length = 2 * pi / (num);
-//     for (int j = 0; j < num; ++j) {
-//         for (int i = 0; i < num; ++i) {
-//             double theta1 = theta_arc_length * i;
-//             double theta2 = theta_arc_length * (i + 1);
-
-//             double phi1 = phi_arc_length * j;
-//             double phi2 = phi_arc_length * (j + 1);
-
-//             double x1 = radius * sin(theta1) * cos(phi1);
-//             double y1 = radius * sin(theta1) * sin(phi1);
-//             double z1 = radius * cos(theta1);
-
-//             double x2 = radius * sin(theta2) * cos(phi1);
-//             double y2 = radius * sin(theta2) * sin(phi1);
-//             double z2 = radius * cos(theta2);
-
-//             double x3 = radius * sin(theta2) * cos(phi2);
-//             double y3 = radius * sin(theta2) * sin(phi2);
-//             double z3 = radius * cos(theta2);
-
-//             double x4 = radius * sin(theta1) * cos(phi2);
-//             double y4 = radius * sin(theta1) * sin(phi2);
-//             double z4 = radius * cos(theta1);
-
-//             // Quad
-//             // glBegin(GL_LINE_LOOP);
-//             // glVertex3f(x1, y1, z1);
-//             // glVertex3f(x2, y2, z2);
-//             // glVertex3f(x3, y3, z3);
-//             // glVertex3f(x4, y4, z4);
-//             // glEnd();
-
-//             // Triangles
-//             current_ptr = store_sphere_triangle(current_ptr, x1, y1, z1, x2, y2, z2, x3 y3, z3, r, g, b);
-
-//             //Store Sphere Triangle =(x1, y1, z1 .. z3 .. z4)
-//         }
-//     }
-//     //  End
-//     glEnd();
-//     //  Undo Transformations
-//     glPopMatrix();
+/*
+ * Coordinates = x, y, z
+ * s = Size
+ * angle => rotate about an axis (x/y/z)
+ */
+//void drawIco (float x, float y, float z,   // VBO (Vertex Buffer Object)
+//              float s, float angle) {
+//
+//    // (A) Vertex Index & Constant
+//
+//    const int N = 60;
+//
+//    const unsigned char index[] =
+//       {
+//           0, 14, 10,    0, 14, 1,    1, 15, 14,    1, 15, 2,    2, 16, 15,    2, 16, 3,    3, 17, 16,    3, 17, 4,    4, 11, 17,
+//          10, 14, 12,   12, 14, 18,   14, 18, 15,   15, 18, 19,  15, 16, 19,   16, 19, 20,  16, 17, 20,   17, 21, 20,  17, 11, 21,  11, 13, 21,
+//           12, 18, 5,    5, 18, 6,     6, 18, 19,    19, 6, 7,    7, 19, 20,    20, 7, 8,    8, 20, 21,    21, 8, 9,   9, 21, 13,
+//
+//       };
+    
+    // (A) Vertex Coordiantes
+    
+    // smooth icosahedron has 14 non-shared (0 to 13) and
+    // 8 shared vertices (14 to 21) (total 22 vertices)
+    //-----------------------------
+    //   00  01  02  03  04      //
+    //   /\  /\  /\  /\  /\      //
+    //  /  \/  \/  \/  \/  \     //
+    // 10--14--15--16--17--11    //
+    //  \  /\  /\  /\  /\  /\    //
+    //   \/  \/  \/  \/  \/  \   //
+    //  12--18--19--20--21--13   //
+    //    \  /\  /\  /\  /\  /   //
+    //     \/  \/  \/  \/  \/    //
+    //     05  06  07  08  09    //
+    //-----------------------------
+        // TOP/BOTTOM - 2 vertices
+            //         *         //
+            //       /   \       //
+            //       \   /       //
+            //         *         //
+        //-------------------------
+        // SIDE - 10 vertices, 36 deg apart
+    
+        /// Multidimensional Array
+        /// Calculate Product & Cross Product
+        /// Ex.  cp[0] = y1 * z2 - z1 * y2;
+           /// cp[1] = z1 * x2 - x1 * z2;
+           /// cp[2] = x1 * y2 - y1 * x2;
+        /// Normal = cp / length
+    
+    
+    // (A) Vertex Colors
+    
+    // (B) Define Vertices & Colors
+        // * glVertexPointer();
+        // * glColorPointer();
+    
+        // * glEnableClientState(GL_VERTEX_ARRAY);
+        // * glEnableClientState(GL_COLOR_ARRAY);
+    
+    // (B) Draw Pumpkin
+//    glPushMatrix();
+//
+//    glTranslatef(x, y, z);       // Translate
+//
+//    glScalef(s, s, s);           // Size
+//
+//    glRotatef(angle, 1, 0, 0);
+//    //glRotatef(angle, 0, 0, 1); // Z axis
+//
+//    glDrawElements(GL_TRIANGLES, N, GL_UNSIGNED_BYTE, index);
+//
+//    glPopMatrix();
+    
+    // (C) Disable Vertex Array & Color Array
+        // * glDisableClientState(GL_VERTEX_ARRAY);
+        // * glDisableClientState(GL_COLOR_ARRAY);
 //}
