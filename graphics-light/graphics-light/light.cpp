@@ -9,6 +9,7 @@
  */
 //--------------------------
 #include <_stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <malloc/malloc.h>
@@ -28,6 +29,8 @@ int flashlight=1;          // Light It Up! | light_flash
 int candle=1;              // Light It Up! | light_candle
 int modeL=0;               // Lighting Mode
 double pi=3.1415926535;    // PI
+double *sphere_ptr = 0;    // Sphere - Allocate Vertices
+int count_vert = 0;        // Count Vertices
 //---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
@@ -56,8 +59,7 @@ struct Rotation{
 //______Store Triangles Needed for Sphere______
 double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
                                                  double x2, double y2, double z2,
-                                                 double x3, double y3, double z3,
-                                                 double r, double g, double b) {
+                                                 double x3, double y3, double z3) {
      // Update Current Ptr & Index
      current_ptr[0] = x1;
      current_ptr[1] = y1;
@@ -83,53 +85,50 @@ double *store_sphere_triangle(double *current_ptr, double radius, double x1, dou
      current_ptr[16] = y3 / radius;
      current_ptr[17] = z3 / radius;
 
-     current_ptr[18] = r;
-     current_ptr[19] = g;
-     current_ptr[20] = b;
+//     current_ptr[18] = r;
+//     current_ptr[19] = g;
+//     current_ptr[20] = b;
+    
+    return current_ptr + 18;
 
-     //Call Strore Sphere - Find Triangles to remove
+     //Call Store Sphere - Find Triangles to REMOVE
+     //return 0;
 
  };
 //______Fetch Array of ptrs______
-void sphere_render(double *current_ptr, double x, double y, double z) {
-    // distance between pt a and b along the x, y and z axes
-    // sqrt(d_x^2 + d_y^2) = length
-    for(int i = 0; i < LEN.current_ptr; i++ ) {
-          //glvertex3f -> Cnt ptr & Vertices
-             // Triangles
-          glBegin(GL_TRIANGLES);
-             glVertex3f(current_ptr[0], current_ptr[1], current_ptr[2]); // Vertices
+void sphere_render(double *current_ptr, int num_vertices) {
+    // Triangles 
+    glBegin(GL_TRIANGLES);
+    for(int i = 0; i < num_vertices; i++ ) {
+        
              glNormal3f(current_ptr[3], current_ptr[4], current_ptr[5]); // Normal
-             
-             glVertex3f(current_ptr[6], current_ptr[7], current_ptr[8]);
-             glNormal3f(current_ptr[9], current_ptr[10], current_ptr[11]);
-             
-             glVertex3f(current_ptr[12], current_ptr[13], current_ptr[14]);
-             glNormal3f(current_ptr[15], current_ptr[16], current_ptr[17]);
-          glEnd();
-          
+        
+             glVertex3f(current_ptr[0], current_ptr[1], current_ptr[2]); // Vertices
+        
+             // - TEST NORMAL -
+             //glNormal3f(1, 0, 0);
+             //printf("%f %f %f \n", current_ptr[3], current_ptr[4], current_ptr[5]);
+        
+             current_ptr = current_ptr + 6;  // Next Vertex -> current ptr
+        
       }
-    //double current ptr
+    glEnd();
 };
 //______Initialize Sphere______
 double *sphere_init(int *count, double radius) {
-                    
-     glPushMatrix();                                            //  Transformation
 
-     int num = 100;                                             //  Size of Array
+     int num = 10;  //  Size of Array
      
-     int num_doubles = 2 * num * num;
+     int num_vertices = 2 * 3 * num * num;  // Number of Vertices
      
      int size_of_vertex = sizeof(double) * (3 + 3 + 3);         //  Color + Vertex + Normal
      
-     double *sphere_buffer = (double *) malloc(num_doubles * size_of_vertex);
+     double *sphere_buffer = (double *) malloc(num_vertices * size_of_vertex);
      double *current_ptr = sphere_buffer;
 
      double theta_arc_length = pi / (num);
      double phi_arc_length = 2 * pi / (num);
      
-     //  Begin
-     glBegin(GL_TRIANGLES);
      for (int j = 0; j < num; ++j) {
          for (int i = 0; i < num; ++i) {
              double theta1 = theta_arc_length * i;
@@ -149,37 +148,24 @@ double *sphere_init(int *count, double radius) {
              double x3 = radius * sin(theta2) * cos(phi2);
              double y3 = radius * sin(theta2) * sin(phi2);
              double z3 = radius * cos(theta2);
+             
+             // Triangles - Update Current Ptr
+             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3);
 
              double x4 = radius * sin(theta1) * cos(phi2);
              double y4 = radius * sin(theta1) * sin(phi2);
              double z4 = radius * cos(theta1);
 
-             // Triangles
-             
-             //              z
-             //              |
-             //               __
-             //             /|
-             //              |
-             //              |
-             //              |    *      \
-             //              | _ _| _ _ _ |    _y
-             //             / \c  |s     /                    p3 --- p2
-             //            /   \o |i                           |     |
-             //           /     \s|n      z=sin(v)            p0 --- p1
-             //         |/__              y=cos(v) *sin(u)
-             //                           x=cos(v) *cos(u)
-             //       /
-             //      x
-             //
-             current_ptr = store_sphere_triangle(current_ptr, x1, y1, z1, x2, y2, z2, x3 y3, z3, r, g, b);
+             // Triangles - Update Current Ptr
+             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x3, y3, z3, x4, y4, z4);
          }
      }
-     
-     glEnd();                                                    //  End
-     
-     glPopMatrix();                                              //  Undo Transformations
+    
+    *count = num_vertices;  // Update Count of Vertices
+    
+    return sphere_buffer;   // Returns ptr to Sphere_Buffer
 }
+
 
 //---------CYLINDER---------
 //--------------------------
@@ -267,20 +253,56 @@ void Text(char const *string) {
 //---------DISPLAY----------
 void display()
 {
+    // --- CAMERA ---
+    //--------------------------
+    glMatrixMode(GL_PROJECTION);
+    
+    int height = 600;
+    
+    int width = 600;
+    
+    gluPerspective(45, width / height, 0.1, 100);              // Perspective - Angle, Aspect Ratio, Min, Max
+
+    glViewport(0, 0, width, height);                           // Set the viewport to the entire window
+    
+    glMatrixMode(GL_MODELVIEW);
+
+    glLoadIdentity();                                          // Undo previous transformations
+    //--------------------------
+    
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear Screen & Depth Buffers
     
    glEnable(GL_DEPTH_TEST);                             // Enable Depth (Z)
     
+   //glMatrixMode(GL_MODELVIEW);
+    
    glLoadIdentity();                                    // Undo Prev Tranformations
+    
+   // gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
+      gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
+    
+    
+    GLfloat light_pos[4] = { 0, 1, 0, 0 };   // Position - x, y, z, Directional(0) / Point(1) Light
+    GLfloat light_color[4] = { 1, 1, 1, 1 }; // Color - White
 
+    glEnable(GL_LIGHT0); //Constant - Enables 1st Light
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color);
+
+    
+    glEnable(GL_LIGHTING);
+    
     // --- Draw Pumpkin ---
+    glColor3f(0.5, 0.5, 0.5);
+    sphere_render(sphere_ptr, count_vert);
     
     // ---  Draw Stems  ---
     
+    glDisable(GL_LIGHTING);
     
     //--------------------------
     // --- LIGHTS ---
-    switch (modeL){                                     // Switch Light Colors
+    switch (modeL){   // Switch Light Colors
         
         case 0:
             //Flashlight - White/Yellow
@@ -305,12 +327,12 @@ void display()
     }
     
     // Display Key Info
-    glColor3f(0,0,0);           // Black Text Color
+    glColor3f(0,0,0);
     
     glWindowPos2i(0,580);       // Top Left Corner
     Text("Exit - Esc");
     
-    glWindowPos2i(0,540);       // New Line - glRasterPos2i(5,5);
+    glWindowPos2i(0,540);
     Text("0 - Reset");
     
     glWindowPos2i(0,500);
@@ -332,13 +354,19 @@ void display()
 //---------RESHAPE----------
 void reshape(int width,int height)
 {
-   // double ratio = (height > 0) ? (double)width/height : 1; //  Ratio of the width to the height of the window
+    // double ratio = (height > 0) ? (double)width/height : 1; //  Ratio of the width to the height of the window
     
     // ORTHO vs. PERSP
-   
-   glViewport(0,0, width,height);                          // Set the viewport to the entire window
- 
-   glLoadIdentity();                                       // Undo previous transformations
+    
+//    glMatrixMode(GL_PROJECTION);
+//
+//    gluPerspective(45, width / height, 0.1, 100);              // Perspective - Angle, Aspect Ratio, Min, Max
+//
+//    glViewport(0, 0, width, height);                           // Set the viewport to the entire window
+//
+//    glMatrixMode(GL_MODELVIEW);
+//
+//    glLoadIdentity();                                          // Undo previous transformations
 }
 //-----------KEYS-----------
 void keys(unsigned char key, int x, int y)
@@ -360,9 +388,6 @@ void keys(unsigned char key, int x, int y)
   
   else if (key == '2')                     // 2 - Change Color 1/3
     modeL = (modeL + 1);                        /// mode = (mode+1)%10;
-     //light = mode(1);
-     //light = mode(2);
-     //light = mode(3);
     
    glutPostRedisplay();                    // Redisplay normal plane
 }
@@ -373,11 +398,9 @@ int main(int argc,char* argv[])
    
    glutCreateWindow("Jack 'O Lantern");    // Create window
     
-   glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);       // Set Background Color - Dark Olive Green
-     
-   //glClearColor(0.0f, 100.0f/255.0f, 0.0f, 1.0f);                     // Set Background Color - Dark Green
-
-   //glClearColor(184.0f/255.0f, 213.0f/255.0f, 238.0f/255.0f, 1.0f);   // Set Background Color - Light Blue
+   glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
+   
+   sphere_ptr = sphere_init(&count_vert, 1);   // Sphere Ptr
    
    glutDisplayFunc(display);               // Register function used to display scene
 
@@ -391,8 +414,19 @@ int main(int argc,char* argv[])
 
 
 
-//_____________________________________________________________________________________________________
+//______________________________________________________________________________________________________________
 
+
+//glClearColor(0.0f, 100.0f/255.0f, 0.0f, 1.0f);                     // Set Background Color - Dark Green
+
+//glClearColor(184.0f/255.0f, 213.0f/255.0f, 238.0f/255.0f, 1.0f);   // Set Background Color - Light Blue
+
+//    glBegin(GL_TRIANGLES);
+//                glColor3f(1.0, 0.0, 0.0);
+//                glVertex3f(1., -1., 0.);
+//                glVertex3f(-1., -1., 0.);
+//                glVertex3f(0., 1., 0.);
+//    glEnd();
 
 //-------ICOSAHEDRON--------
 //--------------------------
