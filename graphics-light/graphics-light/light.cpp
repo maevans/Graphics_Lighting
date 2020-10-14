@@ -55,11 +55,10 @@ struct Rotation{
 //      /\/\/\/\/\        //
 //      \/\/\/\/\/        //
 //--------------------------
-
 //______Store Triangles Needed for Sphere______
 double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
-                                                 double x2, double y2, double z2,
-                                                 double x3, double y3, double z3) {
+                                                                  double x2, double y2, double z2,
+                                                                  double x3, double y3, double z3) {
      // Update Current Ptr & Index
      current_ptr[0] = x1;
      current_ptr[1] = y1;
@@ -97,8 +96,10 @@ double *store_sphere_triangle(double *current_ptr, double radius, double x1, dou
  };
 //______Fetch Array of ptrs______
 void sphere_render(double *current_ptr, int num_vertices) {
-    // Triangles 
+    
+    // Triangles
     glBegin(GL_TRIANGLES);
+    
     for(int i = 0; i < num_vertices; i++ ) {
         
              glNormal3f(current_ptr[3], current_ptr[4], current_ptr[5]); // Normal
@@ -110,7 +111,6 @@ void sphere_render(double *current_ptr, int num_vertices) {
              //printf("%f %f %f \n", current_ptr[3], current_ptr[4], current_ptr[5]);
         
              current_ptr = current_ptr + 6;  // Next Vertex -> current ptr
-        
       }
     glEnd();
 };
@@ -131,6 +131,7 @@ double *sphere_init(int *count, double radius) {
      
      for (int j = 0; j < num; ++j) {
          for (int i = 0; i < num; ++i) {
+             
              double theta1 = theta_arc_length * i;
              double theta2 = theta_arc_length * (i + 1);
 
@@ -189,42 +190,66 @@ static void cylinder (double radius, double height, int num,
     glRotated(rot.rotAngle,rot.rotX,rot.rotY,rot.rotZ); // Stem Rotation
     
     // Pumpkin Stem - Sides
-    glBegin(GL_TRIANGLES);
+    glBegin(GL_QUADS);
+    // Angle in Radians
+    for (int i = 0; i < num; i++){
+        double angle1 = 2 * pi * i / num; // Num - sides of polygon for base or Vertex count
+        double angle2 = 2 * pi * (i+1) / num;
+        
+        // Z axis
+        double z1 = cos(angle1) * radius; // Radius of Cylinder
+        double x1 = sin(angle1) * radius; // X Axis
+        
+        // Y Axis - Height
+        double yLow = 0;
+        double yHigh = height;
+        
+        double z2 = cos(angle2) * radius; // Radius of Cylinder
+        double x2 = sin(angle2) * radius; // X Axis
+        
+        // Quad
+        glVertex3f(x1,yLow,z1);
+        glVertex3f(x2,yLow,z2);
+        glVertex3f(x2,yHigh,z2);
+        glVertex3f(x1,yHigh,z1);
+        
+    }
+    //  End
     glEnd();
     
     //Pumpkin Stem - Top & Bottom
         // Determine pt of A
-        double a1_z = radius;
-        double a1_x = 0;
-        double a1_y = 0;
-        double a1_h = height;
-
-        glBegin(GL_TRIANGLES);
-        for (int i = 0; num - 2; i++){
-        
-            double angle1 = 2 * pi * i / num; // Num - sides of polygon for base or Vertex count
-            double angle2 = 2 * pi * (i+1) / num;
-            
-            // Z axis
-            double z1 = cos(angle1) * radius; // Radius of Cylinder
-            double x1 = sin(angle1) * radius; // X Axis
-            
-            // Y Axis - Height
-            double yLow = 0;
-            double yHigh = height;
-            
-            double z2 = cos(angle2) * radius; // Radius of Cylinder
-            double x2 = sin(angle2) * radius; // X Axis
-
-            // Triangles - Bottom & Top
-            glVertex3f(a1_x, a1_y, a1_z);
-            glVertex3f(x1, yLow, z1);
-            glVertex3f(x2, yLow, z2);
-            glVertex3f(a1_x, a1_h, a1_z);
-            glVertex3f(x1, yHigh, z1);
-            glVertex3f(x2, yHigh, z2);
-        }
-    glEnd();
+//        double a1_z = radius;
+//        double a1_x = 0;
+//        double a1_y = 0;
+//        double a1_h = height;
+//
+//        glBegin(GL_TRIANGLES);
+//        for (int i = 0; num - 2; i++){
+//
+//            double angle1 = 2 * pi * i / num; // Num - sides of polygon for base or Vertex count
+//            double angle2 = 2 * pi * (i+1) / num;
+//
+//            // Z axis
+//            double z1 = cos(angle1) * radius; // Radius of Cylinder
+//            double x1 = sin(angle1) * radius; // X Axis
+//
+//            // Y Axis - Height
+//            double yLow = 0;
+//            double yHigh = height;
+//
+//            double z2 = cos(angle2) * radius; // Radius of Cylinder
+//            double x2 = sin(angle2) * radius; // X Axis
+//
+//            // Triangles - Bottom & Top
+//            glVertex3f(a1_x, a1_y, a1_z);
+//            glVertex3f(x1, yLow, z1);
+//            glVertex3f(x2, yLow, z2);
+//            glVertex3f(a1_x, a1_h, a1_z);
+//            glVertex3f(x1, yHigh, z1);
+//            glVertex3f(x2, yHigh, z2);
+//        }
+//    glEnd();
     
     //  Undo transformations
     glPopMatrix();
@@ -244,9 +269,7 @@ static void cylinder (double radius, double height, int num,
 //----------PRINT-----------
 void Text(char const *string) {
     char const *s; //string
-
     for (s = string; *s != '\0'; s++) {
-        
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *s); // Text Font & String
     }
 }
@@ -261,29 +284,31 @@ void display()
     
     int width = 600;
     
-    gluPerspective(45, width / height, 0.1, 100);              // Perspective - Angle, Aspect Ratio, Min, Max
+    gluPerspective(45, width / height, 0.1, 100);
 
-    glViewport(0, 0, width, height);                           // Set the viewport to the entire window
+    glViewport(0, 0, width, height);
     
     glMatrixMode(GL_MODELVIEW);
 
-    glLoadIdentity();                                          // Undo previous transformations
+    glLoadIdentity();
     //--------------------------
     
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear Screen & Depth Buffers
     
    glEnable(GL_DEPTH_TEST);                             // Enable Depth (Z)
     
-   //glMatrixMode(GL_MODELVIEW);
+// glMatrixMode(GL_MODELVIEW);
     
    glLoadIdentity();                                    // Undo Prev Tranformations
     
-   // gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
+    //gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
       gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
     
     
     GLfloat light_pos[4] = { 0, 1, 0, 0 };   // Position - x, y, z, Directional(0) / Point(1) Light
     GLfloat light_color[4] = { 1, 1, 1, 1 }; // Color - White
+    
+    // COLOR = 205, 133, 63 // PERU
 
     glEnable(GL_LIGHT0); //Constant - Enables 1st Light
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
@@ -293,10 +318,20 @@ void display()
     glEnable(GL_LIGHTING);
     
     // --- Draw Pumpkin ---
-    glColor3f(0.5, 0.5, 0.5);
+    // glColor3f(0.5, 0.5, 0.5); // Grey
+    
+    // COLOR = 210, 105, 30 // CHOCOLATE
+    glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);
     sphere_render(sphere_ptr, count_vert);
     
     // ---  Draw Stems  ---
+    Rotation rot = {30, 0, 0, 1};
+    
+    // COLOR = 128, 128, 0 // OLIVE
+    glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);
+    
+    // radius, height, num, xPos, yPos, zPos, Rotation rot
+    cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);
     
     glDisable(GL_LIGHTING);
     
@@ -368,6 +403,15 @@ void reshape(int width,int height)
 //
 //    glLoadIdentity();                                          // Undo previous transformations
 }
+//-----------MOUSE-----------
+void mouse(int x, int y)
+{
+
+// int m_x = x; // Current Mouse postion in m_x
+// int m_y = y;
+    
+    return;
+}
 //-----------KEYS-----------
 void keys(unsigned char key, int x, int y)
 {
@@ -401,6 +445,9 @@ int main(int argc,char* argv[])
    glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
    
    sphere_ptr = sphere_init(&count_vert, 1);   // Sphere Ptr
+
+   //glutPassiveMotionFunc(int x, int y);   // Location of mouse inside glut window - Updates Mouse Movement
+   glutPassiveMotionFunc(mouse);           // Mouse Location - Mouse Movement
    
    glutDisplayFunc(display);               // Register function used to display scene
 
