@@ -31,6 +31,10 @@ int modeL=0;               // Lighting Mode
 double pi=3.1415926535;    // PI
 double *sphere_ptr = 0;    // Sphere - Allocate Vertices
 int count_vert = 0;        // Count Vertices
+int modeV = 0;             // Mode of View
+double ratio = 1;          // Aspect Ratio
+//int field = 55;            // Field of view - Perspective
+double world = 5.0;        // Dimensions
 //---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
@@ -117,11 +121,11 @@ void sphere_render(double *current_ptr, int num_vertices) {
 //______Initialize Sphere______
 double *sphere_init(int *count, double radius) {
 
-     int num = 10;  //  Size of Array
+     int num = 10;  // Size of Array
      
      int num_vertices = 2 * 3 * num * num;  // Number of Vertices
      
-     int size_of_vertex = sizeof(double) * (3 + 3 + 3);         //  Color + Vertex + Normal
+     int size_of_vertex = sizeof(double) * (3 + 3 + 3);  // Color + Vertex + Normal
      
      double *sphere_buffer = (double *) malloc(num_vertices * size_of_vertex);
      double *current_ptr = sphere_buffer;
@@ -166,8 +170,6 @@ double *sphere_init(int *count, double radius) {
     
     return sphere_buffer;   // Returns ptr to Sphere_Buffer
 }
-
-
 //---------CYLINDER---------
 //--------------------------
 //_________STEMS x 2________
@@ -266,6 +268,24 @@ static void cylinder (double radius, double height, int num,
 //====================================================================
 
 
+//--------ORTHO/PERS--------
+void View() {
+    
+    glMatrixMode(GL_PROJECTION);
+    
+    glLoadIdentity();
+    
+    if (modeV)
+        gluPerspective(45, ratio, 0.1, 100);       //  Perspective - Angle, Aspect Ratio, Min, Max
+       //gluPerspective(45, ratio, world/5, 5*world);       //  Perspective - Angle, Aspect Ratio, Min, Max
+    
+    else
+       glOrtho(-ratio*world, +ratio*world, -ratio, +ratio, -ratio, +ratio);    //  Orthogonal projection
+    
+    glMatrixMode(GL_MODELVIEW);
+    
+    glLoadIdentity();
+}
 //----------PRINT-----------
 void Text(char const *string) {
     char const *s; //string
@@ -276,39 +296,32 @@ void Text(char const *string) {
 //---------DISPLAY----------
 void display()
 {
-    // --- CAMERA ---
-    //--------------------------
-    glMatrixMode(GL_PROJECTION);
-    
-    int height = 600;
-    
-    int width = 600;
-    
-    gluPerspective(45, width / height, 0.1, 100);
-
-    glViewport(0, 0, width, height);
-    
-    glMatrixMode(GL_MODELVIEW);
-
-    glLoadIdentity();
-    //--------------------------
-    
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear Screen & Depth Buffers
     
    glEnable(GL_DEPTH_TEST);                             // Enable Depth (Z)
     
-// glMatrixMode(GL_MODELVIEW);
-    
    glLoadIdentity();                                    // Undo Prev Tranformations
     
-    //gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
-      gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
-    
+    // --- CAMERA ---
+    //--------------------------
+    if (modeV)                                          //  Perspective - Eye View
+     {
+       double Px = -2 * world * sin(angle) * cos(elev);
+       double Py = +2 * world * sin(elev);
+       double Pz = +2 * world * cos(angle) * cos(elev);
+       gluLookAt(Px,Py,Pz, 0,0,0, 0,cos(elev),0); // axes, origin, up
+         //gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
+     }
+
+    else                                                //  Orthogonal - World View
+     {
+       glRotatef(elev, 1, 0, 0);
+       glRotatef(angle, 0, 1, 0);
+     }
+    //--------------------------
     
     GLfloat light_pos[4] = { 0, 1, 0, 0 };   // Position - x, y, z, Directional(0) / Point(1) Light
     GLfloat light_color[4] = { 1, 1, 1, 1 }; // Color - White
-    
-    // COLOR = 205, 133, 63 // PERU
 
     glEnable(GL_LIGHT0); //Constant - Enables 1st Light
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
@@ -318,19 +331,15 @@ void display()
     glEnable(GL_LIGHTING);
     
     // --- Draw Pumpkin ---
-    // glColor3f(0.5, 0.5, 0.5); // Grey
-    
-    // COLOR = 210, 105, 30 // CHOCOLATE
+        // COLOR = 210, 105, 30 // CHOCOLATE
     glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);
     sphere_render(sphere_ptr, count_vert);
     
     // ---  Draw Stems  ---
     Rotation rot = {30, 0, 0, 1};
-    
-    // COLOR = 128, 128, 0 // OLIVE
+        // COLOR = 128, 128, 0 // OLIVE
     glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);
-    
-    // radius, height, num, xPos, yPos, zPos, Rotation rot
+        // radius, height, num, xPos, yPos, zPos, Rotation rot
     cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);
     
     glDisable(GL_LIGHTING);
@@ -381,6 +390,9 @@ void display()
     
     glWindowPos2i(0,380);
     Text("2 - Change Color");
+    
+    glWindowPos2i(0,340);
+    Text("v - Switch View");
    
    glFlush();                              // Make scene visible || Render the scene
 
@@ -389,19 +401,11 @@ void display()
 //---------RESHAPE----------
 void reshape(int width,int height)
 {
-    // double ratio = (height > 0) ? (double)width/height : 1; //  Ratio of the width to the height of the window
+    ratio = (double)width / (double)height;   // Aspect Ratio
     
-    // ORTHO vs. PERSP
+    glViewport(0, 0, width, height);          // Set the viewport to the entire window
     
-//    glMatrixMode(GL_PROJECTION);
-//
-//    gluPerspective(45, width / height, 0.1, 100);              // Perspective - Angle, Aspect Ratio, Min, Max
-//
-//    glViewport(0, 0, width, height);                           // Set the viewport to the entire window
-//
-//    glMatrixMode(GL_MODELVIEW);
-//
-//    glLoadIdentity();                                          // Undo previous transformations
+    View();                                   // ORTHO vs. PERS
 }
 //-----------MOUSE-----------
 void mouse(int x, int y)
@@ -420,12 +424,17 @@ void keys(unsigned char key, int x, int y)
   
   else if (key == '0')                     // 0 - Reset
      angle = elev = 0;
+    
+  else if (key == 'v')                     // Switch View - Ortho vs. Pers
+     modeV = 1 - modeV;
 
   else if (key == GLUT_KEY_RIGHT)          // Right arrow - increase by 5 degree
-      rot += 5;
+      //rot += 5;
+      elev -= 5;
 
   else if (key == GLUT_KEY_LEFT)           // Left arrow - decrease by 5 degree
-      rot -= 5;
+      //rot -= 5;
+      elev += 5;
     
   else if (key == '1')                     // 1 - Turn Flashlight On/Off
      flashlight = 1 - flashlight;
@@ -433,12 +442,16 @@ void keys(unsigned char key, int x, int y)
   else if (key == '2')                     // 2 - Change Color 1/3
     modeL = (modeL + 1);                        /// mode = (mode+1)%10;
     
+   View();                                 // Reset View
+    
    glutPostRedisplay();                    // Redisplay normal plane
 }
 //-----------MAIN-----------
 int main(int argc,char* argv[])
 {
    glutInit(&argc,argv);                   // Initialize GLUT
+    
+   glutInitWindowSize(600,600);            // Initial Window Size
    
    glutCreateWindow("Jack 'O Lantern");    // Create window
     
@@ -474,6 +487,29 @@ int main(int argc,char* argv[])
 //                glVertex3f(-1., -1., 0.);
 //                glVertex3f(0., 1., 0.);
 //    glEnd();
+
+//  //gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
+//    gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
+
+//    if (!Ortho) {
+//        glMatrixMode(GL_PROJECTION);
+//
+//    }
+//    else {
+//        glMatrixMode(model);
+//
+//    }
+
+//    glMatrixMode(GL_PROJECTION);
+//
+//    gluPerspective(45, width / height, 0.1, 100);              // Perspective - Angle, Aspect Ratio, Min, Max
+//
+//    glViewport(0, 0, width, height);                           // Set the viewport to the entire window
+
+//    glMatrixMode(GL_MODELVIEW);
+//
+//    glLoadIdentity();                                          // Undo previous transformations
+
 
 //-------ICOSAHEDRON--------
 //--------------------------
