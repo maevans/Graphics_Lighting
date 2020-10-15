@@ -8,16 +8,6 @@
  *   Time - 72hrs
  */
 
-/*
- *      FIVE GOALS
- *  1). Set & Update Camera View
- *  2). 2 Light light orbs
- *  3). Toggle Light Color
- *  4). CutOut Shape in Sphere
- *  5). Convert Cylinder Quads to Triangles
- *
- */
-
 //--------------------------
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +27,7 @@ double rot;                // Rotation Angle
 int angle=0;               // Azimuth of view angle
 int elev=0;                // Elevation of view angle
 int light_flash=1;         // Light It Up! | Flashlight
-int light_candle=1;        // Light It Up! | Candle
+//int light_candle=1;        // Light It Up! | Candle
 int modeL=0;               // Lighting Mode
 double pi=3.1415926535;    // PI
 double *sphere_ptr = 0;    // Sphere - Allocate Vertices
@@ -45,8 +35,11 @@ int count_vert = 0;        // Count Vertices
 int modeV = 0;             // Mode of View
 double ratio = WIDTH/(double)HEIGHT; // Aspect Ratio
 double world = 5.0;        // Dimensions
-float lightX = 0;          // Light Movement
-float light_dir = 1;       // Current Light Direction
+float lightX = 0;          // Light Movement (1)
+float light_dir = 1;       // Current Light Direction (1)
+float lightX2 = 0;         // Light Movement (1)
+float light_dir2 = -1;     // Current Light Direction (2)
+int light_mov = 1;         // Start Light Move
 //---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
@@ -204,7 +197,7 @@ static void cylinder (double radius, double height, int num,
     glRotated(rot.rotAngle,rot.rotX,rot.rotY,rot.rotZ); // Stem Rotation
     
     // Pumpkin Stem - Sides
-    glBegin(GL_QUADS);
+    glBegin(GL_TRIANGLES);
     // Angle in Radians
     for (int i = 0; i < num; i++){
         double angle1 = 2 * pi * i / num; // Num - sides of polygon for base or Vertex count
@@ -221,65 +214,48 @@ static void cylinder (double radius, double height, int num,
         double z2 = cos(angle2) * radius; // Radius of Cylinder
         double x2 = sin(angle2) * radius; // X Axis
         
-        // Quad
-        glVertex3f(x1,yLow,z1);
+        /* TEXTURES
+         *   - Texture Coordinates <= Map Image
+         *   - glTextCoord2f()
+         */
+        
+        // Triangles
+        glNormal3f(x1, 0, z1);
+        glVertex3f(x1,yLow,z1);  // 0, 1, 2
+        
+        glNormal3f(x2, 0, z2);
         glVertex3f(x2,yLow,z2);
+        
+        glNormal3f(x2, 0, z2);
         glVertex3f(x2,yHigh,z2);
+        
+        glNormal3f(x1, 0, z1);  // 0, 2 , 3
+        glVertex3f(x1,yLow,z1);
+        
+        glNormal3f(x2, 0, z2);
+        glVertex3f(x2,yHigh,z2);
+        
+        glNormal3f(x1, 0, z1);
         glVertex3f(x1,yHigh,z1);
+        
+        // Pumpkin Stem - Top & Bottom
+        glNormal3f(0, -1, 0);
+        glVertex3f(0, yLow, 0); 
+        glVertex3f(x1, yLow, z1);
+        glVertex3f(x2, yLow, z2);
+        
+        glNormal3f(0, 1, 0);
+        glVertex3f(0, yHigh, 0);
+        glVertex3f(x1, yHigh, z1);
+        glVertex3f(x2, yHigh, z2);
         
     }
     //  End
     glEnd();
     
-    //Pumpkin Stem - Top & Bottom
-        // Determine pt of A
-//        double a1_z = radius;
-//        double a1_x = 0;
-//        double a1_y = 0;
-//        double a1_h = height;
-//
-//        glBegin(GL_TRIANGLES);
-//        for (int i = 0; num - 2; i++){
-//
-//            double angle1 = 2 * pi * i / num; // Num - sides of polygon for base or Vertex count
-//            double angle2 = 2 * pi * (i+1) / num;
-//
-//            // Z axis
-//            double z1 = cos(angle1) * radius; // Radius of Cylinder
-//            double x1 = sin(angle1) * radius; // X Axis
-//
-//            // Y Axis - Height
-//            double yLow = 0;
-//            double yHigh = height;
-//
-//            double z2 = cos(angle2) * radius; // Radius of Cylinder
-//            double x2 = sin(angle2) * radius; // X Axis
-//
-//            // Triangles - Bottom & Top
-//            glVertex3f(a1_x, a1_y, a1_z);
-//            glVertex3f(x1, yLow, z1);
-//            glVertex3f(x2, yLow, z2);
-//            glVertex3f(a1_x, a1_h, a1_z);
-//            glVertex3f(x1, yHigh, z1);
-//            glVertex3f(x2, yHigh, z2);
-//        }
-//    glEnd();
-    
     //  Undo transformations
     glPopMatrix();
 }
-
-
-//====================================================================
-//-------FLASHLIGHT---------
-/* Follow Light With Mouse */
-/* Change Color on Key pressed */  // Yellow/White, Purple, Green
-
-//---------CANDLE-----------
-/* Change Color on Key pressed */  // Yellow, Green, Purple
-//====================================================================
-
-
 //--------ORTHO/PERS--------
 void View() {
     
@@ -288,11 +264,11 @@ void View() {
     glLoadIdentity();
     
     if (modeV)
-     //gluPerspective(45, ratio, 0.1, 100);
+     
        gluPerspective(45, ratio, world/4, 4*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
     
     else
-       glOrtho(-ratio*world, +ratio*world, -ratio*world, +ratio*world, -ratio, +ratio);  //  Orthogonal projection
+       glOrtho(-ratio*world, +ratio*world, -ratio*world, +ratio*world, -10, +10);  //  Orthogonal projection
     
     glMatrixMode(GL_MODELVIEW);
     
@@ -321,25 +297,16 @@ void display()
     
    glEnable(GL_DEPTH_TEST);                             // Enable Depth (Z)
     
-//glViewport(0, 0, WIDTH, HEIGHT);        // Set the viewport to the entire window
-//reshape(WIDTH, HEIGHT);
-    
    glLoadIdentity();                                    // Undo Prev Tranformations
     
     // --- CAMERA ---
     //--------------------------
     if (modeV)                                          //  Perspective - Eye View
      {
-//       double Px = -2 * world * sin(0) * cos(elev);
-//       double Py = +2 * world * sin(elev);
-//       double Pz = +2 * world * cos(0) * cos(elev);
        gluLookAt(0,0,-11, 0,0,0, 0,1,0);
        glTranslated(0, 0, 0);
        glRotatef(elev, 1, 0, 0);
        glRotatef(angle, 0, 1, 0);
-       //gluLookAt(Px,Py,Pz, 0,0,0, 0,cos(elev),0); // axes, origin, up
-       //glTranslated(1, 1, 0);
-       //gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
      }
     else                                                //  Orthogonal - World View
      {
@@ -348,80 +315,106 @@ void display()
        glRotatef(angle, 0, 1, 0);
      }
     //--------------------------
-    // --- FLASHLIGHT ---
+    // --- LIGHTS ---
     if (light_flash){
-        
+        //--------------------------
+        // --- LIGHT 1 ---
         GLfloat light_pos[4] = { lightX, 3, 0, 1 };          // Position - x, y, z, Directional(0) / Point(1) Light
-        
-        if (lightX > 5 && light_dir == 1){                   // Light forward
-            lightX = lightX - 0.1;
-            light_dir = -1;
+        if (light_mov == 1){
+            if (lightX > 5 && light_dir == 1){                   // Light forward
+                lightX = lightX - 0.1;
+                light_dir = -1;
+                }
+            else if (lightX < -5 && light_dir == -1) {           // Light back
+                lightX = lightX + 0.1;
+                light_dir = +1;
+                }
+            else {
+                lightX = lightX + 0.1 * light_dir;
+            }
         }
-        else if (lightX < -5 && light_dir == -1) {           // Light back
-            lightX = lightX + 0.1;
-            //printf("%f \n", lightX);
-            light_dir = +1;
+        //--------------------------
+        // --- LIGHT 1 COLOR ---
+        switch (modeL) {
+            case 0: {
+                GLfloat orange[4] = {205.0f/255.0f, 133.0f/255.0f, 63.0f/255.0f, 1};    // Color - 205, 133, 63 - Dark Orange
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, orange);                               // Orange Light
+                break;
+            }
+                
+            case 1: {
+                GLfloat purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
+                //GLfloat purple[4] = {30.0f/255.0f, 144.0f/255.0f, 255.0f, 1};          // Color - 30, 144, 255 - Purple
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, purple);                              // Purple Light
+                break;
+            }
+                
+            case 2: {
+                GLfloat green[4] = {0.0f, 100.0f/255.0f, 0.0f, 1};                     // Color - 0,100,0 - Dark Green
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, green);                               // Green Light
+                break;
+            }
         }
-        else {
-            lightX = lightX + 0.1 * light_dir;
-        }
-        
-      //GLfloat orange[4] = {255, 140, 0, 1};           // Color - 255, 140, 0 - Dark Orange
-      //GLfloat purple[4] = {};                         // Color - 255, 140, 0 - Dark Purple
-      //GLfloat green[4] = {};                          // Color - 255, 140, 0 - Dark Green
-        GLfloat light_color[4] = { 1, 1, 1, 1 };        // Color - White
+        //--------------------------
+        // --- LIGHT 2 ---
+        GLfloat light_pos2[4] = { lightX2, 3, 0, 1 };        // Position - x, y, z, Directional(0) / Point(1) Light
+        if (light_mov == 1){
+            if (lightX2 > 5 && light_dir2 == 1){                   // Light forward
+                lightX2 = lightX2 - 0.1;
+                light_dir2 = -1;
+            }
+            else if (lightX2 < -5 && light_dir2 == -1) {           // Light back
+                lightX2 = lightX2 + 0.1;
+                light_dir2 = +1;
+                }
+            else {
+                lightX2 = lightX2 + 0.1 * light_dir2;
+                }
+            }
+        //--------------------------
+        // --- LIGHT 2 COLOR ---
+        switch (modeL) {
+            case 1: {
+                GLfloat orange[4] = {244.0f/255.0f, 164.0f/255.0f, 96.0f/255.0f, 1};    // Color - 205, 133, 63 - Dark Orange
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, orange);                               // Orange Light - 244, 164, 96
+                break;
+            }
 
+            case 2: {
+                GLfloat purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, purple);                              // Purple Light
+                break;
+            }
+
+            case 0: {
+                GLfloat green[4] = {0.0f, 100.0f/255.0f, 0.0f, 1};                     // Color - 0,100,0 - Dark Green
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, green);                               // Green Light
+                break;
+            }
+        }
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
         
-        glLightfv(GL_LIGHT0, GL_POSITION, light_pos);   // Light Position
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color);  // Light Color
+        glLightfv(GL_LIGHT0, GL_POSITION, light_pos);       // Light Position (1)
+        glEnable(GL_LIGHT0);                                // Constant - Enables 1st Light
         
-        glEnable(GL_LIGHT0);                            // Constant - Enables 1st Light
-        glEnable(GL_COLOR_MATERIAL);                    // Color Material
+        glLightfv(GL_LIGHT1, GL_POSITION, light_pos2);      // Light Position (2)
+        glEnable(GL_LIGHT1);                                // Constant - Enables 2nd Light
         
-        // glMaterialfv(GL_FRONT, GL_DIFFUSE, orange);
+        glEnable(GL_COLOR_MATERIAL);                        // Color Material
     }
     else {
         glDisable(GL_LIGHTING);
     }
     //--------------------------
     // --- Draw Pumpkin ---
-        // COLOR = 210, 105, 30 // CHOCOLATE
-    glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);
-    sphere_render(sphere_ptr, count_vert);
+    glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);   // COLOR = 210, 105, 30 // CHOCOLATE
+    sphere_render(sphere_ptr, count_vert);                   // Draw Sphere
     
     // ---  Draw Stems  ---
     Rotation rot = {30, 0, 0, 1};
-        // COLOR = 128, 128, 0 // OLIVE
-    glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);
-        // radius, height, num, xPos, yPos, zPos, Rotation rot
-    cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);
-    //--------------------------
-    // --- LIGHT COLOR ---
-    switch (modeL){   // Switch Light Colors
-        
-        case 0:
-            //Flashlight - White/Yellow
-            
-            //Candle - Yellow/Light Orange
-            
-            break;
-            
-        case 1:
-            //Flashlight - Purple
-            
-            //Candle - Green
-            
-            break;
-            
-        case 2:
-            //Flashlight - Green
-            
-            //Candle - Purple
-            
-            break;
-    }
+    glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);          // COLOR = 128, 128, 0 // OLIVE
+    cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);                // Draw Cylinder
     //--------------------------
     // --- Display Key Info ---
     glColor3f(0,0,0);
@@ -436,86 +429,90 @@ void display()
     Text("v - View");
     
     glWindowPos2i(10,130);
-    Text("<- Left");
-    
-    glWindowPos2i(10,90);
-    Text("-> Right");
-    
-    glWindowPos2i(10,50);
     Text("1 - Light On/Off");
     
-    glWindowPos2i(10,10);
+    glWindowPos2i(10,90);
     Text("2 - Change Color");
+    
+    glWindowPos2i(10,50);
+    Text("3 - Stop/Start Light");
+    
+    glWindowPos2i(10,10);
+    Text("Arrows - Up/Down, Left/Right");
    
    glFlush();                              // Make scene visible || Render the scene
 
    glutSwapBuffers();                      // Make the rendered scene visible
     
-   glutPostRedisplay();
+   glutPostRedisplay();                    // Redisplay Scene
 }
 //-----------KEYS-----------
 void keys(unsigned char key, int x, int y)
 {
-  if (key == 27)                           // Esc key - Exit the window
+  if (key == 27)                          // Esc key - Exit the window
       exit(0);
   
-  else if (key == '0')                     // 0 - Reset
+  else if (key == '0')                    // 0 - Reset
      angle = elev = 0;
     
-  else if (key == 'v')                     // Switch View - Ortho vs. Pers
+  else if (key == 'v')                    // Switch View - Ortho vs. Pers
      modeV = 1 - modeV;
     
-  else if (key == '1')                     // 1 - Turn Flashlight On/Off
+  else if (key == '1')                    // 1 - Turn Flashlight On/Off
      light_flash = 1 - light_flash;
   
-  else if (key == '2')                     // 2 - Change Color 1/3
-    modeL = (modeL + 1);                        /// mode = (mode+1)%10;
+  else if (key == '2')                    // 2 - Change Color 1/3
+    modeL = (modeL + 1)%3;
     
-   View();                                 // Reset View
+  else if (key == '3')                    // 3 - Stop/Start Light
+     light_mov = -1 * light_mov;
     
-   glutPostRedisplay();                    // Redisplay normal plane
+   View();                                // Reset View
+    
+   glutPostRedisplay();                   // Redisplay normal plane
 }
 void arrows(int key, int x, int y) {
     
-    if (key == GLUT_KEY_RIGHT)            // Right arrow - increase by 5 degree
+    if (key == GLUT_KEY_RIGHT)            // Right arrow - increase by 2 degree
         angle += 2;
-        //elev -= 5;
 
-    else if (key == GLUT_KEY_LEFT)         // Left arrow - decrease by 5 degree
+    else if (key == GLUT_KEY_LEFT)        // Left arrow - decrease by 2 degree
         angle -= 2;
-        //elev += 5;
     
-    View();                                 // Reset View
+    else if (key == GLUT_KEY_UP)          // Up arrow - decrease by 5 degree
+        elev += 5;
+    
+    else if (key == GLUT_KEY_DOWN)        // Down arrow - decrease by 5 degree
+        elev -= 5;
+    
+    View();                               // Reset View
     
     glutPostRedisplay();
 }
 //-----------MAIN-----------
 int main(int argc,char* argv[])
 {
-   glutInit(&argc,argv);                   // Initialize GLUT
+   glutInit(&argc,argv);                                           // Initialize GLUT
     
-   glutInitWindowSize(WIDTH,HEIGHT);            // Initial Window Size
+   glutInitWindowSize(WIDTH,HEIGHT);                               // Initial Window Size
    
-   glutCreateWindow("Jack 'O Lantern");    // Create window
+   glutCreateWindow("Jack 'O Lantern");                            // Create window
     
-    //glClearColor(0, 0, 0, 0);
-   glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
-    
-   glClearColor(51.0f/255.0f, 51.0f/255.0f, 0.0f, 1.0f);
+   glClearColor(51.0f/255.0f, 51.0f/255.0f, 0.0f, 1.0f);           // Set Background Color - Dark Olive Green
    
-   sphere_ptr = sphere_init(&count_vert, 1);   // Sphere Ptr
+   sphere_ptr = sphere_init(&count_vert, 1);                       // Sphere Ptr
    
-   glutDisplayFunc(display);               // Register function used to display scene
+   glutDisplayFunc(display);                                       // Display Scene Func
     
-   glutReshapeFunc(reshape);
+   glutReshapeFunc(reshape);                                       // Reshape Window
 
-   glutKeyboardFunc(keys);                 // Set Window's keys callback
+   glutKeyboardFunc(keys);                                         // Set Window's keys callback
     
-   glutSpecialFunc(arrows);
+   glutSpecialFunc(arrows);                                        // Special keys
     
-   glutMainLoop();                         // Enters the GLUT event processing loop
+   glutMainLoop();                                                 // Enters the GLUT event processing loop
    
-   return 0;                               // Return to OS
+   return 0;                                                       // Return to OS
 }
 
 
@@ -527,6 +524,8 @@ int main(int argc,char* argv[])
 //glClearColor(0.0f, 100.0f/255.0f, 0.0f, 1.0f);                     // Set Background Color - Dark Green
 
 //glClearColor(184.0f/255.0f, 213.0f/255.0f, 238.0f/255.0f, 1.0f);   // Set Background Color - Light Blue
+
+//glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
 
 //    glBegin(GL_TRIANGLES);
 //                glColor3f(1.0, 0.0, 0.0);
