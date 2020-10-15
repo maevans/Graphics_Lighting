@@ -14,6 +14,12 @@ Esc - Exit
 
 ← - Left 
 
+↑ - Up 
+
+↓ - Down 
+
 1 - Light On/Off
 
 2 - Change Light Color 
+
+3 - Stop/Start Light
