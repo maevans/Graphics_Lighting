@@ -11,20 +11,17 @@
 /*
  *      FIVE GOALS
  *  1). Set & Update Camera View
- *  2). Light Follows Mouse
+ *  2). 2 Light light orbs
  *  3). Toggle Light Color
  *  4). CutOut Shape in Sphere
  *  5). Convert Cylinder Quads to Triangles
  *
  */
 
-
 //--------------------------
-//#include <_stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <malloc/malloc.h>
 //--------------------------
 #define GL_GLEXT_PROTOTYPES
 #ifdef __APPLE__
@@ -34,8 +31,8 @@
 #include <GL/glut.h>
 #endif
 //---------------------------------------------------------
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 400
+#define HEIGHT 400
 double rot;                // Rotation Angle
 int angle=0;               // Azimuth of view angle
 int elev=0;                // Elevation of view angle
@@ -46,10 +43,10 @@ double pi=3.1415926535;    // PI
 double *sphere_ptr = 0;    // Sphere - Allocate Vertices
 int count_vert = 0;        // Count Vertices
 int modeV = 0;             // Mode of View
-//double ratio = 1;          // Aspect Ratio
-double ratio = WIDTH/(double)HEIGHT;
-//int field = 55;          // Field of view - Perspective
+double ratio = WIDTH/(double)HEIGHT; // Aspect Ratio
 double world = 5.0;        // Dimensions
+float lightX = 0;          // Light Movement
+float light_dir = 1;       // Current Light Direction
 //---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
@@ -292,12 +289,10 @@ void View() {
     
     if (modeV)
      //gluPerspective(45, ratio, 0.1, 100);
-       gluPerspective(45, ratio, world/5, 5*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
+       gluPerspective(45, ratio, world/4, 4*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
     
     else
-        // 2 * world
-       //glOrtho(-ratio*world, ratio*world, -world, world, 0.1, 2*world); //  Orthogonal projection
-       glOrtho(-ratio*world, +ratio*world, -ratio, +ratio, -ratio, +ratio);  //  Orthogonal projection
+       glOrtho(-ratio*world, +ratio*world, -ratio*world, +ratio*world, -ratio, +ratio);  //  Orthogonal projection
     
     glMatrixMode(GL_MODELVIEW);
     
@@ -310,6 +305,15 @@ void Text(char const *string) {
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *s); // Text Font & String
     }
 }
+//---------RESHAPE----------
+void reshape(int width,int height)
+{
+    ratio = (double)width / (double)height;   // Aspect Ratio
+    
+    glViewport(0, 0, width, height);          // Set the viewport to the entire window
+    
+    View();                                   // ORTHO vs. PERS
+}
 //---------DISPLAY----------
 void display()
 {
@@ -317,21 +321,29 @@ void display()
     
    glEnable(GL_DEPTH_TEST);                             // Enable Depth (Z)
     
+//glViewport(0, 0, WIDTH, HEIGHT);        // Set the viewport to the entire window
+//reshape(WIDTH, HEIGHT);
+    
    glLoadIdentity();                                    // Undo Prev Tranformations
     
     // --- CAMERA ---
     //--------------------------
     if (modeV)                                          //  Perspective - Eye View
      {
-       double Px = -2 * world * sin(angle) * cos(elev);
-       double Py = +2 * world * sin(elev);
-       double Pz = +2 * world * cos(angle) * cos(elev);
-       gluLookAt(Px,Py,Pz, 0,0,0, 0,cos(elev),0); // axes, origin, up
-         //gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);v
+//       double Px = -2 * world * sin(0) * cos(elev);
+//       double Py = +2 * world * sin(elev);
+//       double Pz = +2 * world * cos(0) * cos(elev);
+       gluLookAt(0,0,-11, 0,0,0, 0,1,0);
+       glTranslated(0, 0, 0);
+       glRotatef(elev, 1, 0, 0);
+       glRotatef(angle, 0, 1, 0);
+       //gluLookAt(Px,Py,Pz, 0,0,0, 0,cos(elev),0); // axes, origin, up
+       //glTranslated(1, 1, 0);
+       //gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
      }
-
     else                                                //  Orthogonal - World View
      {
+       glTranslated(1, 0, 0);
        glRotatef(elev, 1, 0, 0);
        glRotatef(angle, 0, 1, 0);
      }
@@ -339,9 +351,24 @@ void display()
     // --- FLASHLIGHT ---
     if (light_flash){
         
-        GLfloat light_pos[4] = { 0, 1, 0, 0 };          // Position - x, y, z, Directional(0) / Point(1) Light
+        GLfloat light_pos[4] = { lightX, 3, 0, 1 };          // Position - x, y, z, Directional(0) / Point(1) Light
+        
+        if (lightX > 5 && light_dir == 1){                   // Light forward
+            lightX = lightX - 0.1;
+            light_dir = -1;
+        }
+        else if (lightX < -5 && light_dir == -1) {           // Light back
+            lightX = lightX + 0.1;
+            //printf("%f \n", lightX);
+            light_dir = +1;
+        }
+        else {
+            lightX = lightX + 0.1 * light_dir;
+        }
         
       //GLfloat orange[4] = {255, 140, 0, 1};           // Color - 255, 140, 0 - Dark Orange
+      //GLfloat purple[4] = {};                         // Color - 255, 140, 0 - Dark Purple
+      //GLfloat green[4] = {};                          // Color - 255, 140, 0 - Dark Green
         GLfloat light_color[4] = { 1, 1, 1, 1 };        // Color - White
 
         glEnable(GL_NORMALIZE);
@@ -362,7 +389,6 @@ void display()
     // --- Draw Pumpkin ---
         // COLOR = 210, 105, 30 // CHOCOLATE
     glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);
-    //glColor3f(204.0f/255.0f, 102.0f/255.0f, 0.0f); //Orange
     sphere_render(sphere_ptr, count_vert);
     
     // ---  Draw Stems  ---
@@ -424,24 +450,8 @@ void display()
    glFlush();                              // Make scene visible || Render the scene
 
    glutSwapBuffers();                      // Make the rendered scene visible
-}
-//---------RESHAPE----------
-void reshape(int width,int height)
-{
-    ratio = (double)width / (double)height;   // Aspect Ratio
     
-    glViewport(0, 0, width, height);          // Set the viewport to the entire window
-    
-    View();                                   // ORTHO vs. PERS
-}
-//-----------MOUSE-----------
-void mouse(int x, int y)
-{
-
-// int m_x = x; // Current Mouse postion in m_x
-// int m_y = y;
-    
-    return;
+   glutPostRedisplay();
 }
 //-----------KEYS-----------
 void keys(unsigned char key, int x, int y)
@@ -484,7 +494,7 @@ int main(int argc,char* argv[])
 {
    glutInit(&argc,argv);                   // Initialize GLUT
     
-   glutInitWindowSize(800,600);            // Initial Window Size
+   glutInitWindowSize(WIDTH,HEIGHT);            // Initial Window Size
    
    glutCreateWindow("Jack 'O Lantern");    // Create window
     
@@ -494,9 +504,6 @@ int main(int argc,char* argv[])
    glClearColor(51.0f/255.0f, 51.0f/255.0f, 0.0f, 1.0f);
    
    sphere_ptr = sphere_init(&count_vert, 1);   // Sphere Ptr
-
-   //glutPassiveMotionFunc(int x, int y);   // Location of mouse inside glut window - Updates Mouse Movement
-   glutPassiveMotionFunc(mouse);           // Mouse Location - Mouse Movement
    
    glutDisplayFunc(display);               // Register function used to display scene
     
@@ -505,9 +512,7 @@ int main(int argc,char* argv[])
    glutKeyboardFunc(keys);                 // Set Window's keys callback
     
    glutSpecialFunc(arrows);
-
-   //glViewport(0, 0, 600, 600);          // Set the viewport to the entire window
-
+    
    glutMainLoop();                         // Enters the GLUT event processing loop
    
    return 0;                               // Return to OS
