@@ -7,12 +7,24 @@
  *  Mahalia Evans - FALL 2020
  *   Time - 72hrs
  */
+
+/*
+ *      FIVE GOALS
+ *  1). Set & Update Camera View
+ *  2). Light Follows Mouse
+ *  3). Toggle Light Color
+ *  4). CutOut Shape in Sphere
+ *  5). Convert Cylinder Quads to Triangles
+ *
+ */
+
+
 //--------------------------
-#include <_stdio.h>
+//#include <_stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <malloc/malloc.h>
+//#include <malloc/malloc.h>
 //--------------------------
 #define GL_GLEXT_PROTOTYPES
 #ifdef __APPLE__
@@ -22,6 +34,8 @@
 #include <GL/glut.h>
 #endif
 //---------------------------------------------------------
+#define WIDTH 800
+#define HEIGHT 600
 double rot;                // Rotation Angle
 int angle=0;               // Azimuth of view angle
 int elev=0;                // Elevation of view angle
@@ -32,7 +46,8 @@ double pi=3.1415926535;    // PI
 double *sphere_ptr = 0;    // Sphere - Allocate Vertices
 int count_vert = 0;        // Count Vertices
 int modeV = 0;             // Mode of View
-double ratio = 1;          // Aspect Ratio
+//double ratio = 1;          // Aspect Ratio
+double ratio = WIDTH/(double)HEIGHT;
 //int field = 55;          // Field of view - Perspective
 double world = 5.0;        // Dimensions
 //---------------------------------------------------------
@@ -277,10 +292,12 @@ void View() {
     
     if (modeV)
      //gluPerspective(45, ratio, 0.1, 100);
-       gluPerspective(45, ratio, world/5, 5*world);       //  Perspective - Angle, Aspect Ratio, Min, Max
+       gluPerspective(45, ratio, world/5, 5*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
     
     else
-       glOrtho(-ratio*world, +ratio*world, -ratio, +ratio, -ratio, +ratio);    //  Orthogonal projection
+        // 2 * world
+       //glOrtho(-ratio*world, ratio*world, -world, world, 0.1, 2*world); //  Orthogonal projection
+       glOrtho(-ratio*world, +ratio*world, -ratio, +ratio, -ratio, +ratio);  //  Orthogonal projection
     
     glMatrixMode(GL_MODELVIEW);
     
@@ -324,15 +341,19 @@ void display()
         
         GLfloat light_pos[4] = { 0, 1, 0, 0 };          // Position - x, y, z, Directional(0) / Point(1) Light
         
-                                                        // Color - 255, 140, 0 - Dark Orange
+      //GLfloat orange[4] = {255, 140, 0, 1};           // Color - 255, 140, 0 - Dark Orange
         GLfloat light_color[4] = { 1, 1, 1, 1 };        // Color - White
 
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
         
-        glEnable(GL_LIGHT0);                            // Constant - Enables 1st Light
         glLightfv(GL_LIGHT0, GL_POSITION, light_pos);   // Light Position
         glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color);  // Light Color
+        
+        glEnable(GL_LIGHT0);                            // Constant - Enables 1st Light
+        glEnable(GL_COLOR_MATERIAL);                    // Color Material
+        
+        // glMaterialfv(GL_FRONT, GL_DIFFUSE, orange);
     }
     else {
         glDisable(GL_LIGHTING);
@@ -341,6 +362,7 @@ void display()
     // --- Draw Pumpkin ---
         // COLOR = 210, 105, 30 // CHOCOLATE
     glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);
+    //glColor3f(204.0f/255.0f, 102.0f/255.0f, 0.0f); //Orange
     sphere_render(sphere_ptr, count_vert);
     
     // ---  Draw Stems  ---
@@ -378,26 +400,26 @@ void display()
     // --- Display Key Info ---
     glColor3f(0,0,0);
     
-    glWindowPos2i(0,580);       // Top Left Corner
-    Text("Exit - Esc");
+    glWindowPos2i(10,250);       // Bottom Left Corner
+    Text("Esc - Exit");
     
-    glWindowPos2i(0,540);
+    glWindowPos2i(10,210);
     Text("0 - Reset");
     
-    glWindowPos2i(0,500);
-    Text("<- - Left");
+    glWindowPos2i(10,170);
+    Text("v - View");
     
-    glWindowPos2i(0,460);
-    Text("-> - Right");
+    glWindowPos2i(10,130);
+    Text("<- Left");
     
-    glWindowPos2i(0,420);
+    glWindowPos2i(10,90);
+    Text("-> Right");
+    
+    glWindowPos2i(10,50);
     Text("1 - Light On/Off");
     
-    glWindowPos2i(0,380);
+    glWindowPos2i(10,10);
     Text("2 - Change Color");
-    
-    glWindowPos2i(0,340);
-    Text("v - Switch View");
    
    glFlush();                              // Make scene visible || Render the scene
 
@@ -462,12 +484,14 @@ int main(int argc,char* argv[])
 {
    glutInit(&argc,argv);                   // Initialize GLUT
     
-   glutInitWindowSize(600,600);            // Initial Window Size
+   glutInitWindowSize(800,600);            // Initial Window Size
    
    glutCreateWindow("Jack 'O Lantern");    // Create window
     
     //glClearColor(0, 0, 0, 0);
    glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
+    
+   glClearColor(51.0f/255.0f, 51.0f/255.0f, 0.0f, 1.0f);
    
    sphere_ptr = sphere_init(&count_vert, 1);   // Sphere Ptr
 
