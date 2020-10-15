@@ -10,6 +10,8 @@ Esc - Exit
 
 0 - Reset 
 
+v - View
+
 → - Right 
 
 ← - Left 
