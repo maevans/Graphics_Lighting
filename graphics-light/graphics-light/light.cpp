@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "CSCIx229.h"
 //--------------------------
 #define GL_GLEXT_PROTOTYPES
 #ifdef __APPLE__
@@ -40,6 +41,7 @@ float light_dir = 1;       // Current Light Direction (1)
 float lightX2 = 0;         // Light Movement (1)
 float light_dir2 = -1;     // Current Light Direction (2)
 int light_mov = 1;         // Start Light Move
+unsigned int textImg[2];   // Texture Images
 //---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
@@ -510,145 +512,11 @@ int main(int argc,char* argv[])
     
    glutSpecialFunc(arrows);                                        // Special keys
     
+   textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files 
+   textImg[1] = LoadTexBMP("stem.bmp");
+    
    glutMainLoop();                                                 // Enters the GLUT event processing loop
    
    return 0;                                                       // Return to OS
 }
-
-
-
-
 //______________________________________________________________________________________________________________
-
-
-//glClearColor(0.0f, 100.0f/255.0f, 0.0f, 1.0f);                     // Set Background Color - Dark Green
-
-//glClearColor(184.0f/255.0f, 213.0f/255.0f, 238.0f/255.0f, 1.0f);   // Set Background Color - Light Blue
-
-//glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
-
-//    glBegin(GL_TRIANGLES);
-//                glColor3f(1.0, 0.0, 0.0);
-//                glVertex3f(1., -1., 0.);
-//                glVertex3f(-1., -1., 0.);
-//                glVertex3f(0., 1., 0.);
-//    glEnd();
-
-//gluPerspective(45, ratio, 0.1, 100);       //  Perspective - Angle, Aspect Ratio, Min, Max
-
-//  //gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
-//    gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
-
-//    if (!Ortho) {
-//        glMatrixMode(GL_PROJECTION);
-//
-//    }
-//    else {
-//        glMatrixMode(model);
-//
-//    }
-
-//    glMatrixMode(GL_PROJECTION);
-//
-//    gluPerspective(45, width / height, 0.1, 100);              // Perspective - Angle, Aspect Ratio, Min, Max
-//
-//    glViewport(0, 0, width, height);                           // Set the viewport to the entire window
-
-//    glMatrixMode(GL_MODELVIEW);
-//
-//    glLoadIdentity();                                          // Undo previous transformations
-
-
-//-------ICOSAHEDRON--------
-//--------------------------
-//______PUMPKIN + FACE______
-//                        //
-//        /_\ /_\         //
-//          /_\           //
-//      /\/\/\/\/\        //
-//      \/\/\/\/\/        //
-//--------------------------
-// COLOR = 210, 105, 30 // CHOCOLATE // OUTSIDE
-// COLOR = 205, 133, 63 // PERU      // INSIDE
-
-// * ADD Shine + Lines (Texture)
-
-/*
- * Coordinates = x, y, z
- * s = Size
- * angle => rotate about an axis (x/y/z)
- */
-//void drawIco (float x, float y, float z,   // VBO (Vertex Buffer Object)
-//              float s, float angle) {
-//
-//    // (A) Vertex Index & Constant
-//
-//    const int N = 60;
-//
-//    const unsigned char index[] =
-//       {
-//           0, 14, 10,    0, 14, 1,    1, 15, 14,    1, 15, 2,    2, 16, 15,    2, 16, 3,    3, 17, 16,    3, 17, 4,    4, 11, 17,
-//          10, 14, 12,   12, 14, 18,   14, 18, 15,   15, 18, 19,  15, 16, 19,   16, 19, 20,  16, 17, 20,   17, 21, 20,  17, 11, 21,  11, 13, 21,
-//           12, 18, 5,    5, 18, 6,     6, 18, 19,    19, 6, 7,    7, 19, 20,    20, 7, 8,    8, 20, 21,    21, 8, 9,   9, 21, 13,
-//
-//       };
-    
-    // (A) Vertex Coordiantes
-    
-    // smooth icosahedron has 14 non-shared (0 to 13) and
-    // 8 shared vertices (14 to 21) (total 22 vertices)
-    //-----------------------------
-    //   00  01  02  03  04      //
-    //   /\  /\  /\  /\  /\      //
-    //  /  \/  \/  \/  \/  \     //
-    // 10--14--15--16--17--11    //
-    //  \  /\  /\  /\  /\  /\    //
-    //   \/  \/  \/  \/  \/  \   //
-    //  12--18--19--20--21--13   //
-    //    \  /\  /\  /\  /\  /   //
-    //     \/  \/  \/  \/  \/    //
-    //     05  06  07  08  09    //
-    //-----------------------------
-        // TOP/BOTTOM - 2 vertices
-            //         *         //
-            //       /   \       //
-            //       \   /       //
-            //         *         //
-        //-------------------------
-        // SIDE - 10 vertices, 36 deg apart
-    
-        /// Multidimensional Array
-        /// Calculate Product & Cross Product
-        /// Ex.  cp[0] = y1 * z2 - z1 * y2;
-           /// cp[1] = z1 * x2 - x1 * z2;
-           /// cp[2] = x1 * y2 - y1 * x2;
-        /// Normal = cp / length
-    
-    
-    // (A) Vertex Colors
-    
-    // (B) Define Vertices & Colors
-        // * glVertexPointer();
-        // * glColorPointer();
-    
-        // * glEnableClientState(GL_VERTEX_ARRAY);
-        // * glEnableClientState(GL_COLOR_ARRAY);
-    
-    // (B) Draw Pumpkin
-//    glPushMatrix();
-//
-//    glTranslatef(x, y, z);       // Translate
-//
-//    glScalef(s, s, s);           // Size
-//
-//    glRotatef(angle, 1, 0, 0);
-//    //glRotatef(angle, 0, 0, 1); // Z axis
-//
-//    glDrawElements(GL_TRIANGLES, N, GL_UNSIGNED_BYTE, index);
-//
-//    glPopMatrix();
-    
-    // (C) Disable Vertex Array & Color Array
-        // * glDisableClientState(GL_VERTEX_ARRAY);
-        // * glDisableClientState(GL_COLOR_ARRAY);
-//}

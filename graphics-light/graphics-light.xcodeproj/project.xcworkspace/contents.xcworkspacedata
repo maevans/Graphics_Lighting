@@ -2,6 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/pumpkin.bmp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/stem.bmp">
+   </FileRef>
+   <FileRef
       location = "self:">
    </FileRef>
 </Workspace>
