@@ -25,15 +25,15 @@
 double rot;                // Rotation Angle
 int angle=0;               // Azimuth of view angle
 int elev=0;                // Elevation of view angle
-int flashlight=1;          // Light It Up! | light_flash
-int candle=1;              // Light It Up! | light_candle
+int light_flash=1;         // Light It Up! | Flashlight
+int light_candle=1;        // Light It Up! | Candle
 int modeL=0;               // Lighting Mode
 double pi=3.1415926535;    // PI
 double *sphere_ptr = 0;    // Sphere - Allocate Vertices
 int count_vert = 0;        // Count Vertices
 int modeV = 0;             // Mode of View
 double ratio = 1;          // Aspect Ratio
-//int field = 55;            // Field of view - Perspective
+//int field = 55;          // Field of view - Perspective
 double world = 5.0;        // Dimensions
 //---------------------------------------------------------
 //----Directional-Light-----
@@ -276,8 +276,8 @@ void View() {
     glLoadIdentity();
     
     if (modeV)
-        gluPerspective(45, ratio, 0.1, 100);       //  Perspective - Angle, Aspect Ratio, Min, Max
-       //gluPerspective(45, ratio, world/5, 5*world);       //  Perspective - Angle, Aspect Ratio, Min, Max
+     //gluPerspective(45, ratio, 0.1, 100);
+       gluPerspective(45, ratio, world/5, 5*world);       //  Perspective - Angle, Aspect Ratio, Min, Max
     
     else
        glOrtho(-ratio*world, +ratio*world, -ratio, +ratio, -ratio, +ratio);    //  Orthogonal projection
@@ -310,7 +310,7 @@ void display()
        double Py = +2 * world * sin(elev);
        double Pz = +2 * world * cos(angle) * cos(elev);
        gluLookAt(Px,Py,Pz, 0,0,0, 0,cos(elev),0); // axes, origin, up
-         //gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
+         //gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);v
      }
 
     else                                                //  Orthogonal - World View
@@ -319,17 +319,25 @@ void display()
        glRotatef(angle, 0, 1, 0);
      }
     //--------------------------
-    
-    GLfloat light_pos[4] = { 0, 1, 0, 0 };   // Position - x, y, z, Directional(0) / Point(1) Light
-    GLfloat light_color[4] = { 1, 1, 1, 1 }; // Color - White
+    // --- FLASHLIGHT ---
+    if (light_flash){
+        
+        GLfloat light_pos[4] = { 0, 1, 0, 0 };          // Position - x, y, z, Directional(0) / Point(1) Light
+        
+                                                        // Color - 255, 140, 0 - Dark Orange
+        GLfloat light_color[4] = { 1, 1, 1, 1 };        // Color - White
 
-    glEnable(GL_LIGHT0); //Constant - Enables 1st Light
-    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color);
-
-    
-    glEnable(GL_LIGHTING);
-    
+        glEnable(GL_NORMALIZE);
+        glEnable(GL_LIGHTING);
+        
+        glEnable(GL_LIGHT0);                            // Constant - Enables 1st Light
+        glLightfv(GL_LIGHT0, GL_POSITION, light_pos);   // Light Position
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color);  // Light Color
+    }
+    else {
+        glDisable(GL_LIGHTING);
+    }
+    //--------------------------
     // --- Draw Pumpkin ---
         // COLOR = 210, 105, 30 // CHOCOLATE
     glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);
@@ -341,11 +349,8 @@ void display()
     glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);
         // radius, height, num, xPos, yPos, zPos, Rotation rot
     cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);
-    
-    glDisable(GL_LIGHTING);
-    
     //--------------------------
-    // --- LIGHTS ---
+    // --- LIGHT COLOR ---
     switch (modeL){   // Switch Light Colors
         
         case 0:
@@ -369,8 +374,8 @@ void display()
             
             break;
     }
-    
-    // Display Key Info
+    //--------------------------
+    // --- Display Key Info ---
     glColor3f(0,0,0);
     
     glWindowPos2i(0,580);       // Top Left Corner
@@ -427,17 +432,9 @@ void keys(unsigned char key, int x, int y)
     
   else if (key == 'v')                     // Switch View - Ortho vs. Pers
      modeV = 1 - modeV;
-
-  else if (key == GLUT_KEY_RIGHT)          // Right arrow - increase by 5 degree
-      //rot += 5;
-      elev -= 5;
-
-  else if (key == GLUT_KEY_LEFT)           // Left arrow - decrease by 5 degree
-      //rot -= 5;
-      elev += 5;
     
   else if (key == '1')                     // 1 - Turn Flashlight On/Off
-     flashlight = 1 - flashlight;
+     light_flash = 1 - light_flash;
   
   else if (key == '2')                     // 2 - Change Color 1/3
     modeL = (modeL + 1);                        /// mode = (mode+1)%10;
@@ -445,6 +442,20 @@ void keys(unsigned char key, int x, int y)
    View();                                 // Reset View
     
    glutPostRedisplay();                    // Redisplay normal plane
+}
+void arrows(int key, int x, int y) {
+    
+    if (key == GLUT_KEY_RIGHT)            // Right arrow - increase by 5 degree
+        angle += 2;
+        //elev -= 5;
+
+    else if (key == GLUT_KEY_LEFT)         // Left arrow - decrease by 5 degree
+        angle -= 2;
+        //elev += 5;
+    
+    View();                                 // Reset View
+    
+    glutPostRedisplay();
 }
 //-----------MAIN-----------
 int main(int argc,char* argv[])
@@ -455,6 +466,7 @@ int main(int argc,char* argv[])
    
    glutCreateWindow("Jack 'O Lantern");    // Create window
     
+    //glClearColor(0, 0, 0, 0);
    glClearColor(85.0f/255.0f, 107.0f/255.0f, 47.0f/255.0f, 1.0f);  // Set Background Color - Dark Olive Green
    
    sphere_ptr = sphere_init(&count_vert, 1);   // Sphere Ptr
@@ -463,9 +475,15 @@ int main(int argc,char* argv[])
    glutPassiveMotionFunc(mouse);           // Mouse Location - Mouse Movement
    
    glutDisplayFunc(display);               // Register function used to display scene
+    
+   glutReshapeFunc(reshape);
 
    glutKeyboardFunc(keys);                 // Set Window's keys callback
-   
+    
+   glutSpecialFunc(arrows);
+
+   //glViewport(0, 0, 600, 600);          // Set the viewport to the entire window
+
    glutMainLoop();                         // Enters the GLUT event processing loop
    
    return 0;                               // Return to OS
@@ -487,6 +505,8 @@ int main(int argc,char* argv[])
 //                glVertex3f(-1., -1., 0.);
 //                glVertex3f(0., 1., 0.);
 //    glEnd();
+
+//gluPerspective(45, ratio, 0.1, 100);       //  Perspective - Angle, Aspect Ratio, Min, Max
 
 //  //gluLookAt(x, y, z, 0, 0, 0, 0, 1, 0); // axes, origin, up
 //    gluLookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
