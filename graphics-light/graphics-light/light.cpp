@@ -3,25 +3,23 @@
  * HW #6 - Textures
  *
  *  Light & Texture in a 3D Scene
- *     - Jack O' Lantern with Candle & Light
+ *     - Three Pumpkins 
  *
  *  Mahalia Evans - FALL 2020
- *   Time - 72hrs
+ *   Time - 42hrs
  */
 //--------------------------
 #define GL_SILENCE_DEPRECATION
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <math.h>
 #include "CSCIx229.h"
 //--------------------------
-//#define GL_GLEXT_PROTOTYPES
-//#ifdef __APPLE__
-//#define GL_SILENCE_DEPRECATION
-//#include <GLUT/glut.h>
-//#else
-//#include <GL/glut.h>
-//#endif
+/* GOALS
+ * + Create Vines
+ * + Shaders to create Face
+ * + Add Grass Textures & Light
+ * + Fix Light Colors on Pumpkins
+ * + Add Candle light inside Pumpkins
+ * + Fix Up/Down Arrows
+ */
 //---------------------------------------------------------
 #define WIDTH 400
 #define HEIGHT 400
@@ -321,163 +319,136 @@ static void cube(double x,double y,double z,
        //  Cube = 6 * 2 = 12 Triangles
         glBegin(GL_TRIANGLES);
              //Normal
-        // x = y0 * z1 - y1 * z0
-        // y = z0 * x1 - z1 * x0
-        // z = x0 * y1 - x1 * y0
-    
             glNormal3f( 0, 0, 1);
             glVertex3f(-1, -1, -1); // Tri 1
-            glTexCoord2f(0,0);
+//            glTexCoord2f(0,0);
+    
             glVertex3f(-1, -1, 1);
-            glTexCoord2f(0,0);
+//            glTexCoord2f(0,0);
+    
             glVertex3f(-1, 1, -1);
-            glTexCoord2f(0,0);
+//            glTexCoord2f(0,0);
+    
     
             glNormal3f( 0, 0, 1);
             glVertex3f(1, 1, -1); // Tri 2
-            glTexCoord2f(0,0);
+//            glTexCoord2f(0,0);
+    
             glVertex3f(-1, -1, -1);
-            glTexCoord2f(0,0);
+//            glTexCoord2f(0,0);
+    
             glVertex3f(-1, 1, -1);
-            glTexCoord2f(0,0);
+//            glTexCoord2f(0,0);
+    
     
             glNormal3f( 0, 0,-1);
             glVertex3f(1, -1, 1); // Tri 3
-            glTexCoord2f(0,1);
+//            glTexCoord2f(0,1);
+    
             glVertex3f(-1, -1, -1);
-            glTexCoord2f(0,1);
+//            glTexCoord2f(0,1);
+    
             glVertex3f(1, -1, -1);
-            glTexCoord2f(0,1);
+//            glTexCoord2f(0,1);
+    
     
             glNormal3f( 0, 0,-1);
             glVertex3f(1, 1, -1); // Tri 4
-            glTexCoord2f(0,1);
+//            glTexCoord2f(0,1);
+    
             glVertex3f(1, -1, -1);
-            glTexCoord2f(0,1);
+//            glTexCoord2f(0,1);
+    
             glVertex3f(-1, -1, -1);
-            glTexCoord2f(0,1);
+//            glTexCoord2f(0,1);
+    
     
             glNormal3f(+1, 0, 0);
             glVertex3f(-1, -1, -1); // Tri 5
-            glTexCoord2f(1,1);
+//            glTexCoord2f(1,1);
+    
             glVertex3f(-1, 1, 1);
-            glTexCoord2f(1,1);
+//            glTexCoord2f(1,1);
+    
             glVertex3f(-1, 1, -1);
-            glTexCoord2f(1,1);
+//            glTexCoord2f(1,1);
             
             glNormal3f(+1, 0, 0);
             glVertex3f(1, -1, 1); // Tri 6
-            glTexCoord2f(1,1);
+//            glTexCoord2f(1,1);
+    
             glVertex3f(-1, -1, 1);
-            glTexCoord2f(1,1);
+//            glTexCoord2f(1,1);
+    
             glVertex3f(-1, -1, -1);
-            glTexCoord2f(1,1);
+//            glTexCoord2f(1,1);
+    
     
             glNormal3f(-1, 0, 0);
             glVertex3f(-1, 1, 1); // Tri 7
-            glTexCoord2f(1,0);
+//            glTexCoord2f(1,0);
+    
             glVertex3f(-1, -1, 1);
-            glTexCoord2f(1,0);
+//            glTexCoord2f(1,0);
+    
             glVertex3f(1, -1, 1);
-            glTexCoord2f(1,0);
+//            glTexCoord2f(1,0);
+    
     
             glNormal3f(-1, 0, 0);
             glVertex3f(1, 1, 1); // Tri 8
-            glTexCoord2f(1,0);
+//            glTexCoord2f(1,0);
+    
             glVertex3f(1, -1, -1);
-            glTexCoord2f(1,0);
+//            glTexCoord2f(1,0);
+    
             glVertex3f(1, 1, -1);
-            glTexCoord2f(1,0);
+//            glTexCoord2f(1,0);
+    
     
             glNormal3f( 0,+1, 0);
             glVertex3f(1, -1, -1); // Tri 9
-            glTexCoord2f(1,2);
+//            glTexCoord2f(1,2);
+    
             glVertex3f(1, 1, 1);
-            glTexCoord2f(1,2);
+//            glTexCoord2f(1,2);
+    
             glVertex3f(1, -1, 1);
-            glTexCoord2f(1,2);
+//            glTexCoord2f(1,2);
     
     
             glNormal3f( 0,+1, 0);
-    
             glVertex3f(1, 1, 1); // Tri 10
-            glTexCoord2f(1,2);
+//            glTexCoord2f(1,2);
     
             glVertex3f(1, 1, -1);
-            glTexCoord2f(1,2);
+//            glTexCoord2f(1,2);
     
             glVertex3f(-1, 1, -1);
-            glTexCoord2f(1,2);
+//            glTexCoord2f(1,2);
                 
     
             glNormal3f( 0,-1, 0);
-    
             glVertex3f(1, 1, 1); // Tri 11
-            glTexCoord2f(2,2);
+//            glTexCoord2f(2,2);
     
             glVertex3f(-1, 1, -1);
-            glTexCoord2f(2,2);
+//            glTexCoord2f(2,2);
     
             glVertex3f(-1, 1, 1);
-            glTexCoord2f(2,2);
+//            glTexCoord2f(2,2);
     
     
             glNormal3f( 0,-1, 0);
-    
             glVertex3f(1, 1, 1); // Tri 12
-            glTexCoord2f(2,2);
+//            glTexCoord2f(2,2);
     
             glVertex3f(-1, 1, 1);
-            glTexCoord2f(2,2);
+//            glTexCoord2f(2,2);
     
             glVertex3f(1, -1, 1);
-            glTexCoord2f(2,2);
+//            glTexCoord2f(2,2);
     
-    
-//        glBegin(GL_QUADS);
-//        //  Front
-//        //glColor3f(1,0,0);
-//        glNormal3f( 0, 0, 1);  // *
-//        glVertex3f(-1,-1, 1);
-//        glVertex3f(+1,-1, 1);
-//        glVertex3f(+1,+1, 1);
-//        glVertex3f(-1,+1, 1);
-//        //  Back
-//        //glColor3f(0,0,1);  // *
-//        glNormal3f( 0, 0,-1);
-//        glVertex3f(+1,-1,-1);
-//        glVertex3f(-1,-1,-1);
-//        glVertex3f(-1,+1,-1);
-//        glVertex3f(+1,+1,-1);
-//        //  Right
-//        //glColor3f(1,1,0);
-//        glNormal3f(+1, 0, 0); // *
-//        glVertex3f(+1,-1,+1);
-//        glVertex3f(+1,-1,-1);
-//        glVertex3f(+1,+1,-1);
-//        glVertex3f(+1,+1,+1);
-//        //  Left
-//        //glColor3f(0,1,0);
-//        glNormal3f(-1, 0, 0); // 8
-//        glVertex3f(-1,-1,-1);
-//        glVertex3f(-1,-1,+1);
-//        glVertex3f(-1,+1,+1);
-//        glVertex3f(-1,+1,-1);
-//        //  Top
-//        //glColor3f(0,1,1);  // *
-//        glNormal3f( 0,+1, 0);
-//        glVertex3f(-1,+1,+1);
-//        glVertex3f(+1,+1,+1);
-//        glVertex3f(+1,+1,-1);
-//        glVertex3f(-1,+1,-1);
-//        //  Bottom
-//        //glColor3f(1,0,1);  // *
-//        glNormal3f( 0,-1, 0);
-//        glVertex3f(-1,-1,-1);
-//        glVertex3f(+1,-1,-1);
-//        glVertex3f(+1,-1,+1);
-//        glVertex3f(-1,-1,+1);
-       //  End
        glEnd();
    //  Undo transofrmations
     glPopMatrix();
@@ -727,7 +698,7 @@ void keys(unsigned char key, int x, int y)
   else if (key == '3')                    // 3 - Stop/Start Light
      light_mov = -1 * light_mov;
     
-   //View();                                // Reset View
+   View();                                // Reset View
     
    glutPostRedisplay();                   // Redisplay normal plane
 }
@@ -745,7 +716,7 @@ void arrows(int key, int x, int y) {
     else if (key == GLUT_KEY_DOWN)        // Down arrow - decrease by 5 degree
         elev -= 5;
     
-    //View();                               // Reset View
+    View();                               // Reset View
     
     glutPostRedisplay();
 }
@@ -773,91 +744,9 @@ int main(int argc,char* argv[])
    textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files
    textImg[1] = LoadTexBMP("stalk-green.bmp");
    textImg[2] = LoadTexBMP("grass.bmp");
-
         
    glutMainLoop();                                                 // Enters the GLUT event processing loop
    
    return 0;                                                       // Return to OS
 }
 //______________________________________________________________________________________________________________
-
-//                GLfloat purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
-//                GLfloat purple[4] = {0.0f, 0.0f, 255.0f, 1};          // Color - 30, 144, 255 - Purple
-                //GLfloat red[4] = {102.0f/255.0f, 153.0f/255.0f, 1.0f, 1};
-
-//                GLfloat orange[4] = {205.0f/255.0f, 133.0f/255.0f, 63.0f/255.0f, 1};    // Color - 205, 133, 63 - Dark Orange
-//                GLfloat green[4] = {0.0f, 100.0f/255.0f, 0.0f, 1};                     // Color - 0,100,0 - Dark Green
-
-
-//        // Enable Textures
-//        glEnable(GL_TEXTURE_2D);
-//        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-//        //glColor3f(1,1,1);
-//        glBindTexture(GL_TEXTURE_2D,textImg[1]);
-//
-//        glBegin(GL_QUADS);
-//            glTexCoord2f(0,0);
-//            glTexCoord2f(0,1);
-//            glTexCoord2f(1,1);
-//            glTexCoord2f(1,0);
-//        glEnd();
-
-//_____________________________________
-// 4 Vertices = 8 Tex Coords
-
-    //u1 = i/num   i+1/num
-    
-    //v1 = j/num   j+1/num
-
-//_____________________________________
-
-//#define STB_IMAGE_IMPLEMENTATION
-//#include <stb_image.h>
-//
-//#include <glad/glad.h>
-//#include <fstream>
-//
-//namespace gfclock {
-//
-//class Texture {
-//    GLuint texture;
-//
-//public:
-//    Texture(std::string const& path) {
-//        int w;
-//        int h;
-//        int comp;
-//
-//        stbi_set_flip_vertically_on_load(true);
-//        unsigned char* image = stbi_load(path.c_str(), &w, &h, &comp, STBI_rgb);
-//
-//        if (image == nullptr) {
-//            throw(std::runtime_error("Failed to load texture"));
-//        }
-//
-//        glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-//        glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//        glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//        glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//        glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//
-//        glTextureStorage2D(texture, 10, GL_RGB8, w, h);
-//        glTextureSubImage2D(texture, 0, 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
-//        glGenerateTextureMipmap(texture);
-//
-//        stbi_image_free(image);
-//    }
-//
-//    void bind(unsigned textureUnit) const {
-//        glBindTextureUnit(textureUnit, texture);
-//    }
-//
-//    Texture(Texture const&) = delete;
-//    Texture& operator=(Texture const&) = delete;
-//
-//    ~Texture() {
-//        glDeleteTextures(1, &texture);
-//    }
-//};
-//
-//}
