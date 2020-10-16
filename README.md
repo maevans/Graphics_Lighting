@@ -10,10 +10,18 @@ Esc - Exit
 
 0 - Reset 
 
+v - View
+
 → - Right 
 
 ← - Left 
 
+↑ - Up 
+
+↓ - Down 
+
 1 - Light On/Off
 
 2 - Change Light Color 
+
+3 - Stop/Start Light
