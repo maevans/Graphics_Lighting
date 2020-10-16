@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/hw6.c">
+   </FileRef>
+   <FileRef
       location = "group:/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/pumpkin.bmp">
    </FileRef>
    <FileRef

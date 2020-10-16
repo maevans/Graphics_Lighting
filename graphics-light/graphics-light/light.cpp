@@ -1,14 +1,15 @@
 /*
  * HW #5 - Lighting
+ * HW #6 - Textures
  *
- *  Light in a 3D Scene
- *     - Jack 'O Lantern with Candle & Light
+ *  Light & Texture in a 3D Scene
+ *     - Jack O' Lantern with Candle & Light
  *
  *  Mahalia Evans - FALL 2020
  *   Time - 72hrs
  */
-
 //--------------------------
+#define GL_SILENCE_DEPRECATION
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -69,37 +70,48 @@ struct Rotation{
 //______Store Triangles Needed for Sphere______
 double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
                                                                   double x2, double y2, double z2,
-                                                                  double x3, double y3, double z3) {
+                                                                  double x3, double y3, double z3,
+                                                                  double u1, double v1, double u2, double v2,
+                                                                  double u3, double v3) {
+    
+//double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
+//                                                                  double x2, double y2, double z2,
+//                                                                  double x3, double y3, double z3) {
      // Update Current Ptr & Index
-     current_ptr[0] = x1;
+     current_ptr[0] = x1; //Vert
      current_ptr[1] = y1;
      current_ptr[2] = z1;
 
-     current_ptr[3] = x1 / radius;
+     current_ptr[3] = x1 / radius; //Norm
      current_ptr[4] = y1 / radius;
      current_ptr[5] = z1 / radius;
+        
+     current_ptr[6] = u1; //TextCoords
+     current_ptr[7] = v1;
 
-     current_ptr[6] = x2;
-     current_ptr[7] = y2;
-     current_ptr[8] = z2;
+     current_ptr[8] = x2;
+     current_ptr[9] = y2;
+     current_ptr[10] = z2;
 
-     current_ptr[9] = x2 / radius;
-     current_ptr[10] = y2 / radius;
-     current_ptr[11] = z2 / radius;
-
-     current_ptr[12] = x3;
-     current_ptr[13] = y3;
-     current_ptr[14] = z3;
-
-     current_ptr[15] = x3 / radius;
-     current_ptr[16] = y3 / radius;
-     current_ptr[17] = z3 / radius;
-
-//     current_ptr[18] = r;
-//     current_ptr[19] = g;
-//     current_ptr[20] = b;
+     current_ptr[11] = x2 / radius;
+     current_ptr[12] = y2 / radius;
+     current_ptr[13] = z2 / radius;
     
-    return current_ptr + 18;
+     current_ptr[14] = u2;
+     current_ptr[15] = v2;
+
+     current_ptr[16] = x3;
+     current_ptr[17] = y3;
+     current_ptr[18] = z3;
+
+     current_ptr[19] = x3 / radius;
+     current_ptr[20] = y3 / radius;
+     current_ptr[21] = z3 / radius;
+
+     current_ptr[22] = u3;
+     current_ptr[23] = v3;
+    
+    return current_ptr + 24;
 
      //Call Store Sphere - Find Triangles to REMOVE
      //return 0;
@@ -108,20 +120,20 @@ double *store_sphere_triangle(double *current_ptr, double radius, double x1, dou
 //______Fetch Array of ptrs______
 void sphere_render(double *current_ptr, int num_vertices) {
     
+    // Enable Pumpkin Texture
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glBindTexture(GL_TEXTURE_2D,textImg[0]);
+    
     // Triangles
     glBegin(GL_TRIANGLES);
     
     for(int i = 0; i < num_vertices; i++ ) {
         
-             glNormal3f(current_ptr[3], current_ptr[4], current_ptr[5]); // Normal
-        
-             glVertex3f(current_ptr[0], current_ptr[1], current_ptr[2]); // Vertices
-        
-             // - TEST NORMAL -
-             //glNormal3f(1, 0, 0);
-             //printf("%f %f %f \n", current_ptr[3], current_ptr[4], current_ptr[5]);
-        
-             current_ptr = current_ptr + 6;  // Next Vertex -> current ptr
+        glNormal3f(current_ptr[3], current_ptr[4], current_ptr[5]); // Normal
+        glVertex3f(current_ptr[0], current_ptr[1], current_ptr[2]); // Vertices
+        glTexCoord2f(current_ptr[6], current_ptr[7]);  // Texture Coordinates
+        current_ptr = current_ptr + 8;  // Next Vertex -> current ptr
       }
     glEnd();
 };
@@ -161,15 +173,30 @@ double *sphere_init(int *count, double radius) {
              double y3 = radius * sin(theta2) * sin(phi2);
              double z3 = radius * cos(theta2);
              
-             // Triangles - Update Current Ptr
-             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3);
+             double u1 = theta1 / pi;
+             double v1 = phi1 / (2 * pi);
 
+             double u2 = theta2 / pi;
+             double v2 = phi1 / (2 * pi);
+
+             double u3 = theta2 / pi;
+             double v3 = phi2 / (2 * pi);
+             
+             // Triangles - Update Current Ptr
+//             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3);
+
+           current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3,
+                                                 u1, v1, u2, v2, u3, v3);
+             
              double x4 = radius * sin(theta1) * cos(phi2);
              double y4 = radius * sin(theta1) * sin(phi2);
              double z4 = radius * cos(theta1);
 
              // Triangles - Update Current Ptr
-             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x3, y3, z3, x4, y4, z4);
+//             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3);
+             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x3, y3, z3, x4, y4, z4,
+                                                   u1, v1, u2, v2, u3, v3);
+             
          }
      }
     
@@ -198,6 +225,11 @@ static void cylinder (double radius, double height, int num,
     // Rotation Double
     glRotated(rot.rotAngle,rot.rotX,rot.rotY,rot.rotZ); // Stem Rotation
     
+    // Enable Stem Texture
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glBindTexture(GL_TEXTURE_2D,textImg[1]);
+    
     // Pumpkin Stem - Sides
     glBegin(GL_TRIANGLES);
     // Angle in Radians
@@ -218,38 +250,58 @@ static void cylinder (double radius, double height, int num,
         
         /* TEXTURES
          *   - Texture Coordinates <= Map Image
-         *   - glTextCoord2f()
+         *   - glTexCoord2f()
          */
+        
+        // Coordinates
+        double s1 = angle1 / (2 * pi);
+        double s2 = angle2 / (2 * pi);
         
         // Triangles
         glNormal3f(x1, 0, z1);
         glVertex3f(x1,yLow,z1);  // 0, 1, 2
+        glTexCoord2f(s1, 0);
         
         glNormal3f(x2, 0, z2);
         glVertex3f(x2,yLow,z2);
+        glTexCoord2f(s2, 0);
         
         glNormal3f(x2, 0, z2);
         glVertex3f(x2,yHigh,z2);
+        glTexCoord2f(s2, 1);
         
         glNormal3f(x1, 0, z1);  // 0, 2 , 3
         glVertex3f(x1,yLow,z1);
+        glTexCoord2f(s1, 0);
         
         glNormal3f(x2, 0, z2);
         glVertex3f(x2,yHigh,z2);
+        glTexCoord2f(s2, 1);
         
         glNormal3f(x1, 0, z1);
         glVertex3f(x1,yHigh,z1);
+        glTexCoord2f(s1, 0);
         
-        // Pumpkin Stem - Top & Bottom
+        // Pumpkin Stem - Bottom & Top
         glNormal3f(0, -1, 0);
-        glVertex3f(0, yLow, 0); 
+        glVertex3f(0, yLow, 0);
+        glTexCoord2f(0, 0);
+        
         glVertex3f(x1, yLow, z1);
+        glTexCoord2f(s1, 0);
+        
         glVertex3f(x2, yLow, z2);
+        glTexCoord2f(s2, 1);
         
         glNormal3f(0, 1, 0);
         glVertex3f(0, yHigh, 0);
+        glTexCoord2f(0, 0);
+        
         glVertex3f(x1, yHigh, z1);
+        glTexCoord2f(s1, 1);
+        
         glVertex3f(x2, yHigh, z2);
+        glTexCoord2f(s2, 1);
         
     }
     //  End
@@ -260,20 +312,13 @@ static void cylinder (double radius, double height, int num,
 }
 //--------ORTHO/PERS--------
 void View() {
-    
     glMatrixMode(GL_PROJECTION);
-    
     glLoadIdentity();
-    
     if (modeV)
-     
        gluPerspective(45, ratio, world/4, 4*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
-    
     else
        glOrtho(-ratio*world, +ratio*world, -ratio*world, +ratio*world, -10, +10);  //  Orthogonal projection
-    
     glMatrixMode(GL_MODELVIEW);
-    
     glLoadIdentity();
 }
 //----------PRINT-----------
@@ -287,9 +332,7 @@ void Text(char const *string) {
 void reshape(int width,int height)
 {
     ratio = (double)width / (double)height;   // Aspect Ratio
-    
     glViewport(0, 0, width, height);          // Set the viewport to the entire window
-    
     View();                                   // ORTHO vs. PERS
 }
 //---------DISPLAY----------
@@ -407,7 +450,7 @@ void display()
     }
     else {
         glDisable(GL_LIGHTING);
-    }
+        }
     //--------------------------
     // --- Draw Pumpkin ---
     glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);   // COLOR = 210, 105, 30 // CHOCOLATE
@@ -417,6 +460,7 @@ void display()
     Rotation rot = {30, 0, 0, 1};
     glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);          // COLOR = 128, 128, 0 // OLIVE
     cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);                // Draw Cylinder
+    
     //--------------------------
     // --- Display Key Info ---
     glColor3f(0,0,0);
@@ -481,7 +525,7 @@ void arrows(int key, int x, int y) {
     else if (key == GLUT_KEY_LEFT)        // Left arrow - decrease by 2 degree
         angle -= 2;
     
-    else if (key == GLUT_KEY_UP)          // Up arrow - decrease by 5 degree
+    else if (key == GLUT_KEY_UP)          // Up arrow - increase by 5 degree
         elev += 5;
     
     else if (key == GLUT_KEY_DOWN)        // Down arrow - decrease by 5 degree
@@ -512,7 +556,7 @@ int main(int argc,char* argv[])
     
    glutSpecialFunc(arrows);                                        // Special keys
     
-   textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files 
+//   textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files
    textImg[1] = LoadTexBMP("stem.bmp");
     
    glutMainLoop();                                                 // Enters the GLUT event processing loop
@@ -520,3 +564,76 @@ int main(int argc,char* argv[])
    return 0;                                                       // Return to OS
 }
 //______________________________________________________________________________________________________________
+
+//        // Enable Textures
+//        glEnable(GL_TEXTURE_2D);
+//        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+//        //glColor3f(1,1,1);
+//        glBindTexture(GL_TEXTURE_2D,textImg[1]);
+//
+//        glBegin(GL_QUADS);
+//            glTexCoord2f(0,0);
+//            glTexCoord2f(0,1);
+//            glTexCoord2f(1,1);
+//            glTexCoord2f(1,0);
+//        glEnd();
+
+//_____________________________________
+// 4 Vertices = 8 Tex Coords
+
+    //u1 = i/num   i+1/num
+    
+    //v1 = j/num   j+1/num
+
+//_____________________________________
+
+//#define STB_IMAGE_IMPLEMENTATION
+//#include <stb_image.h>
+//
+//#include <glad/glad.h>
+//#include <fstream>
+//
+//namespace gfclock {
+//
+//class Texture {
+//    GLuint texture;
+//
+//public:
+//    Texture(std::string const& path) {
+//        int w;
+//        int h;
+//        int comp;
+//
+//        stbi_set_flip_vertically_on_load(true);
+//        unsigned char* image = stbi_load(path.c_str(), &w, &h, &comp, STBI_rgb);
+//
+//        if (image == nullptr) {
+//            throw(std::runtime_error("Failed to load texture"));
+//        }
+//
+//        glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+//        glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//        glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//        glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//        glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//        glTextureStorage2D(texture, 10, GL_RGB8, w, h);
+//        glTextureSubImage2D(texture, 0, 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
+//        glGenerateTextureMipmap(texture);
+//
+//        stbi_image_free(image);
+//    }
+//
+//    void bind(unsigned textureUnit) const {
+//        glBindTextureUnit(textureUnit, texture);
+//    }
+//
+//    Texture(Texture const&) = delete;
+//    Texture& operator=(Texture const&) = delete;
+//
+//    ~Texture() {
+//        glDeleteTextures(1, &texture);
+//    }
+//};
+//
+//}

@@ -10,9 +10,12 @@
 		B8030DE82535168800A7346C /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8030DE72535168800A7346C /* light.cpp */; };
 		B8030DF2253518C600A7346C /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8030DF1253518C600A7346C /* GLUT.framework */; };
 		B8030DF4253518D000A7346C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8030DF3253518D000A7346C /* OpenGL.framework */; };
-		B87EA9AE2538B468001D2816 /* loadtexbmp.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9AD2538B468001D2816 /* loadtexbmp.c */; };
-		B87EA9B12538B51F001D2816 /* fatal.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9B02538B51F001D2816 /* fatal.c */; };
-		B87EA9B42538B552001D2816 /* errcheck.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9B32538B552001D2816 /* errcheck.c */; };
+		B87EA9E62539293E001D2816 /* errcheck.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9E52539293E001D2816 /* errcheck.c */; };
+		B87EA9EB25392951001D2816 /* project.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9E825392951001D2816 /* project.c */; };
+		B87EA9EC25392951001D2816 /* object.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9E925392951001D2816 /* object.c */; };
+		B87EA9ED25392951001D2816 /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9EA25392951001D2816 /* print.c */; };
+		B87EA9F02539295A001D2816 /* fatal.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9EF2539295A001D2816 /* fatal.c */; };
+		B87EA9F32539297B001D2816 /* loadtexbmp.c in Sources */ = {isa = PBXBuildFile; fileRef = B87EA9F22539297B001D2816 /* loadtexbmp.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,10 +37,14 @@
 		B8030DF3253518D000A7346C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		B87EA9AA2538B1F0001D2816 /* stem.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = stem.bmp; path = "/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/stem.bmp"; sourceTree = "<absolute>"; };
 		B87EA9AB2538B1F3001D2816 /* pumpkin.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = pumpkin.bmp; path = "/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/pumpkin.bmp"; sourceTree = "<absolute>"; };
-		B87EA9AC2538B441001D2816 /* CSCIx229.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSCIx229.h; sourceTree = "<group>"; };
-		B87EA9AD2538B468001D2816 /* loadtexbmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadtexbmp.c; sourceTree = "<group>"; };
-		B87EA9B02538B51F001D2816 /* fatal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fatal.c; sourceTree = "<group>"; };
-		B87EA9B32538B552001D2816 /* errcheck.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = errcheck.c; sourceTree = "<group>"; };
+		B87EA9B82538FBC1001D2816 /* CSCIx229.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSCIx229.h; sourceTree = "<group>"; };
+		B87EA9E52539293E001D2816 /* errcheck.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = errcheck.c; sourceTree = "<group>"; };
+		B87EA9E825392951001D2816 /* project.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = project.c; sourceTree = "<group>"; };
+		B87EA9E925392951001D2816 /* object.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = object.c; sourceTree = "<group>"; };
+		B87EA9EA25392951001D2816 /* print.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = print.c; sourceTree = "<group>"; };
+		B87EA9EF2539295A001D2816 /* fatal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fatal.c; sourceTree = "<group>"; };
+		B87EA9F22539297B001D2816 /* loadtexbmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadtexbmp.c; sourceTree = "<group>"; };
+		B87EA9FC25392C1E001D2816 /* PumpkinTexture.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = PumpkinTexture.bmp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,10 +81,14 @@
 			isa = PBXGroup;
 			children = (
 				B8030DE72535168800A7346C /* light.cpp */,
-				B87EA9AD2538B468001D2816 /* loadtexbmp.c */,
-				B87EA9B32538B552001D2816 /* errcheck.c */,
-				B87EA9B02538B51F001D2816 /* fatal.c */,
-				B87EA9AC2538B441001D2816 /* CSCIx229.h */,
+				B87EA9FC25392C1E001D2816 /* PumpkinTexture.bmp */,
+				B87EA9E52539293E001D2816 /* errcheck.c */,
+				B87EA9EF2539295A001D2816 /* fatal.c */,
+				B87EA9F22539297B001D2816 /* loadtexbmp.c */,
+				B87EA9E925392951001D2816 /* object.c */,
+				B87EA9EA25392951001D2816 /* print.c */,
+				B87EA9E825392951001D2816 /* project.c */,
+				B87EA9B82538FBC1001D2816 /* CSCIx229.h */,
 				B87EA9AB2538B1F3001D2816 /* pumpkin.bmp */,
 				B87EA9AA2538B1F0001D2816 /* stem.bmp */,
 			);
@@ -149,10 +160,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B87EA9B12538B51F001D2816 /* fatal.c in Sources */,
+				B87EA9F02539295A001D2816 /* fatal.c in Sources */,
+				B87EA9EC25392951001D2816 /* object.c in Sources */,
+				B87EA9F32539297B001D2816 /* loadtexbmp.c in Sources */,
+				B87EA9E62539293E001D2816 /* errcheck.c in Sources */,
 				B8030DE82535168800A7346C /* light.cpp in Sources */,
-				B87EA9B42538B552001D2816 /* errcheck.c in Sources */,
-				B87EA9AE2538B468001D2816 /* loadtexbmp.c in Sources */,
+				B87EA9EB25392951001D2816 /* project.c in Sources */,
+				B87EA9ED25392951001D2816 /* print.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
