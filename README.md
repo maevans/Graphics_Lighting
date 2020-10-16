@@ -25,3 +25,5 @@ v - View
 2 - Change Light Color 
 
 3 - Stop/Start Light
+
+4/5 - Zoom In/Out
