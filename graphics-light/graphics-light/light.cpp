@@ -42,7 +42,7 @@ float light_dir = 1;       // Current Light Direction (1)
 float lightX2 = 0;         // Light Movement (1)
 float light_dir2 = -1;     // Current Light Direction (2)
 int light_mov = 1;         // Start Light Move
-unsigned int textImg[2];   // Texture Images
+unsigned int textImg[3];   // Texture Images
 //---------------------------------------------------------
 //----Directional-Light-----
 struct Lighting{
@@ -556,7 +556,7 @@ int main(int argc,char* argv[])
     
    glutSpecialFunc(arrows);                                        // Special keys
     
-//   textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files
+   //textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files
    textImg[1] = LoadTexBMP("stem.bmp");
     
    glutMainLoop();                                                 // Enters the GLUT event processing loop
