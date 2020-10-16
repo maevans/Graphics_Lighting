@@ -10,18 +10,18 @@
  */
 //--------------------------
 #define GL_SILENCE_DEPRECATION
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <math.h>
 #include "CSCIx229.h"
 //--------------------------
-#define GL_GLEXT_PROTOTYPES
-#ifdef __APPLE__
-#define GL_SILENCE_DEPRECATION
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+//#define GL_GLEXT_PROTOTYPES
+//#ifdef __APPLE__
+//#define GL_SILENCE_DEPRECATION
+//#include <GLUT/glut.h>
+//#else
+//#include <GL/glut.h>
+//#endif
 //---------------------------------------------------------
 #define WIDTH 400
 #define HEIGHT 400
@@ -37,6 +37,8 @@ int count_vert = 0;        // Count Vertices
 int modeV = 0;             // Mode of View
 double ratio = WIDTH/(double)HEIGHT; // Aspect Ratio
 double world = 5.0;        // Dimensions
+double field = 45;            // Field Of View
+float view_ortho = 1;
 float lightX = 0;          // Light Movement (1)
 float light_dir = 1;       // Current Light Direction (1)
 float lightX2 = 0;         // Light Movement (1)
@@ -73,10 +75,6 @@ double *store_sphere_triangle(double *current_ptr, double radius, double x1, dou
                                                                   double x3, double y3, double z3,
                                                                   double u1, double v1, double u2, double v2,
                                                                   double u3, double v3) {
-    
-//double *store_sphere_triangle(double *current_ptr, double radius, double x1, double y1, double z1,
-//                                                                  double x2, double y2, double z2,
-//                                                                  double x3, double y3, double z3) {
      // Update Current Ptr & Index
      current_ptr[0] = x1; //Vert
      current_ptr[1] = y1;
@@ -122,7 +120,7 @@ void sphere_render(double *current_ptr, int num_vertices) {
     
     // Enable Pumpkin Texture
     glEnable(GL_TEXTURE_2D);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     glBindTexture(GL_TEXTURE_2D,textImg[0]);
     
     // Triangles
@@ -183,8 +181,6 @@ double *sphere_init(int *count, double radius) {
              double v3 = phi2 / (2 * pi);
              
              // Triangles - Update Current Ptr
-//             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3);
-
            current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3,
                                                  u1, v1, u2, v2, u3, v3);
              
@@ -193,7 +189,6 @@ double *sphere_init(int *count, double radius) {
              double z4 = radius * cos(theta1);
 
              // Triangles - Update Current Ptr
-//             current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x2, y2, z2, x3, y3, z3);
              current_ptr = store_sphere_triangle(current_ptr, radius, x1, y1, z1, x3, y3, z3, x4, y4, z4,
                                                    u1, v1, u2, v2, u3, v3);
              
@@ -226,8 +221,8 @@ static void cylinder (double radius, double height, int num,
     glRotated(rot.rotAngle,rot.rotX,rot.rotY,rot.rotZ); // Stem Rotation
     
     // Enable Stem Texture
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+//    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     glBindTexture(GL_TEXTURE_2D,textImg[1]);
     
     // Pumpkin Stem - Sides
@@ -247,11 +242,6 @@ static void cylinder (double radius, double height, int num,
         
         double z2 = cos(angle2) * radius; // Radius of Cylinder
         double x2 = sin(angle2) * radius; // X Axis
-        
-        /* TEXTURES
-         *   - Texture Coordinates <= Map Image
-         *   - glTexCoord2f()
-         */
         
         // Coordinates
         double s1 = angle1 / (2 * pi);
@@ -310,14 +300,198 @@ static void cylinder (double radius, double height, int num,
     //  Undo transformations
     glPopMatrix();
 }
+//----------CUBE------------
+//--------------------------
+//_________FLOOR____________
+static void cube(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double angle)
+{
+//       glEnable(GL_TEXTURE_2D);
+       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+       glBindTexture(GL_TEXTURE_2D,textImg[2]);
+
+       glPushMatrix();
+//       glLoadIdentity();
+       //  Offset, scale and rotate
+       glTranslated(0,-1,0);
+       glRotated(angle,0,1,0);
+       glScaled(dx,dy,dz);
+    
+       //  Cube = 6 * 2 = 12 Triangles
+        glBegin(GL_TRIANGLES);
+             //Normal
+        // x = y0 * z1 - y1 * z0
+        // y = z0 * x1 - z1 * x0
+        // z = x0 * y1 - x1 * y0
+    
+            glNormal3f( 0, 0, 1);
+            glVertex3f(-1, -1, -1); // Tri 1
+            glTexCoord2f(0,0);
+            glVertex3f(-1, -1, 1);
+            glTexCoord2f(0,0);
+            glVertex3f(-1, 1, -1);
+            glTexCoord2f(0,0);
+    
+            glNormal3f( 0, 0, 1);
+            glVertex3f(1, 1, -1); // Tri 2
+            glTexCoord2f(0,0);
+            glVertex3f(-1, -1, -1);
+            glTexCoord2f(0,0);
+            glVertex3f(-1, 1, -1);
+            glTexCoord2f(0,0);
+    
+            glNormal3f( 0, 0,-1);
+            glVertex3f(1, -1, 1); // Tri 3
+            glTexCoord2f(0,1);
+            glVertex3f(-1, -1, -1);
+            glTexCoord2f(0,1);
+            glVertex3f(1, -1, -1);
+            glTexCoord2f(0,1);
+    
+            glNormal3f( 0, 0,-1);
+            glVertex3f(1, 1, -1); // Tri 4
+            glTexCoord2f(0,1);
+            glVertex3f(1, -1, -1);
+            glTexCoord2f(0,1);
+            glVertex3f(-1, -1, -1);
+            glTexCoord2f(0,1);
+    
+            glNormal3f(+1, 0, 0);
+            glVertex3f(-1, -1, -1); // Tri 5
+            glTexCoord2f(1,1);
+            glVertex3f(-1, 1, 1);
+            glTexCoord2f(1,1);
+            glVertex3f(-1, 1, -1);
+            glTexCoord2f(1,1);
+            
+            glNormal3f(+1, 0, 0);
+            glVertex3f(1, -1, 1); // Tri 6
+            glTexCoord2f(1,1);
+            glVertex3f(-1, -1, 1);
+            glTexCoord2f(1,1);
+            glVertex3f(-1, -1, -1);
+            glTexCoord2f(1,1);
+    
+            glNormal3f(-1, 0, 0);
+            glVertex3f(-1, 1, 1); // Tri 7
+            glTexCoord2f(1,0);
+            glVertex3f(-1, -1, 1);
+            glTexCoord2f(1,0);
+            glVertex3f(1, -1, 1);
+            glTexCoord2f(1,0);
+    
+            glNormal3f(-1, 0, 0);
+            glVertex3f(1, 1, 1); // Tri 8
+            glTexCoord2f(1,0);
+            glVertex3f(1, -1, -1);
+            glTexCoord2f(1,0);
+            glVertex3f(1, 1, -1);
+            glTexCoord2f(1,0);
+    
+            glNormal3f( 0,+1, 0);
+            glVertex3f(1, -1, -1); // Tri 9
+            glTexCoord2f(1,2);
+            glVertex3f(1, 1, 1);
+            glTexCoord2f(1,2);
+            glVertex3f(1, -1, 1);
+            glTexCoord2f(1,2);
+    
+    
+            glNormal3f( 0,+1, 0);
+    
+            glVertex3f(1, 1, 1); // Tri 10
+            glTexCoord2f(1,2);
+    
+            glVertex3f(1, 1, -1);
+            glTexCoord2f(1,2);
+    
+            glVertex3f(-1, 1, -1);
+            glTexCoord2f(1,2);
+                
+    
+            glNormal3f( 0,-1, 0);
+    
+            glVertex3f(1, 1, 1); // Tri 11
+            glTexCoord2f(2,2);
+    
+            glVertex3f(-1, 1, -1);
+            glTexCoord2f(2,2);
+    
+            glVertex3f(-1, 1, 1);
+            glTexCoord2f(2,2);
+    
+    
+            glNormal3f( 0,-1, 0);
+    
+            glVertex3f(1, 1, 1); // Tri 12
+            glTexCoord2f(2,2);
+    
+            glVertex3f(-1, 1, 1);
+            glTexCoord2f(2,2);
+    
+            glVertex3f(1, -1, 1);
+            glTexCoord2f(2,2);
+    
+    
+//        glBegin(GL_QUADS);
+//        //  Front
+//        //glColor3f(1,0,0);
+//        glNormal3f( 0, 0, 1);  // *
+//        glVertex3f(-1,-1, 1);
+//        glVertex3f(+1,-1, 1);
+//        glVertex3f(+1,+1, 1);
+//        glVertex3f(-1,+1, 1);
+//        //  Back
+//        //glColor3f(0,0,1);  // *
+//        glNormal3f( 0, 0,-1);
+//        glVertex3f(+1,-1,-1);
+//        glVertex3f(-1,-1,-1);
+//        glVertex3f(-1,+1,-1);
+//        glVertex3f(+1,+1,-1);
+//        //  Right
+//        //glColor3f(1,1,0);
+//        glNormal3f(+1, 0, 0); // *
+//        glVertex3f(+1,-1,+1);
+//        glVertex3f(+1,-1,-1);
+//        glVertex3f(+1,+1,-1);
+//        glVertex3f(+1,+1,+1);
+//        //  Left
+//        //glColor3f(0,1,0);
+//        glNormal3f(-1, 0, 0); // 8
+//        glVertex3f(-1,-1,-1);
+//        glVertex3f(-1,-1,+1);
+//        glVertex3f(-1,+1,+1);
+//        glVertex3f(-1,+1,-1);
+//        //  Top
+//        //glColor3f(0,1,1);  // *
+//        glNormal3f( 0,+1, 0);
+//        glVertex3f(-1,+1,+1);
+//        glVertex3f(+1,+1,+1);
+//        glVertex3f(+1,+1,-1);
+//        glVertex3f(-1,+1,-1);
+//        //  Bottom
+//        //glColor3f(1,0,1);  // *
+//        glNormal3f( 0,-1, 0);
+//        glVertex3f(-1,-1,-1);
+//        glVertex3f(+1,-1,-1);
+//        glVertex3f(+1,-1,+1);
+//        glVertex3f(-1,-1,+1);
+       //  End
+       glEnd();
+   //  Undo transofrmations
+    glPopMatrix();
+}
 //--------ORTHO/PERS--------
 void View() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    if (modeV)
-       gluPerspective(45, ratio, world/4, 4*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
+    if (modeV){
+        //printf("Field: %f \n",field);
+       gluPerspective(field, ratio, world/4, 4*world);  //  Perspective - Angle, Aspect Ratio, Min, Max
+    }
     else
-       glOrtho(-ratio*world, +ratio*world, -ratio*world, +ratio*world, -10, +10);  //  Orthogonal projection
+       glOrtho(-ratio*world*view_ortho, +ratio*world*view_ortho, -ratio*world*view_ortho, +ratio*world*view_ortho, -10, +10);  //  Orthogonal projection
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -344,18 +518,21 @@ void display()
     
    glLoadIdentity();                                    // Undo Prev Tranformations
     
+    View();
+    
     // --- CAMERA ---
     //--------------------------
     if (modeV)                                          //  Perspective - Eye View
      {
-       gluLookAt(0,0,-11, 0,0,0, 0,1,0);
+       gluLookAt(0,0,8, 0,0,0, 0,1,0);
        glTranslated(0, 0, 0);
        glRotatef(elev, 1, 0, 0);
-       glRotatef(angle, 0, 1, 0);
+       glRotatef(angle, 0, -1, 0);
      }
     else                                                //  Orthogonal - World View
      {
-       glTranslated(1, 0, 0);
+       glTranslated(1, 0, -4);
+       gluLookAt(0,1,0, 1,0,-4, 0,4,0);
        glRotatef(elev, 1, 0, 0);
        glRotatef(angle, 0, 1, 0);
      }
@@ -382,21 +559,20 @@ void display()
         // --- LIGHT 1 COLOR ---
         switch (modeL) {
             case 0: {
-                GLfloat orange[4] = {205.0f/255.0f, 133.0f/255.0f, 63.0f/255.0f, 1};    // Color - 205, 133, 63 - Dark Orange
-                glLightfv(GL_LIGHT1, GL_DIFFUSE, orange);                               // Orange Light
+                GLfloat red[4] = {1, 0, 0, 1};
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, red);                               // Red Light
                 break;
             }
                 
             case 1: {
-                GLfloat purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
-                //GLfloat purple[4] = {30.0f/255.0f, 144.0f/255.0f, 255.0f, 1};          // Color - 30, 144, 255 - Purple
+                GLfloat purple[4] = {30.0f/255.0f, 144.0f/255.0f, 255.0f, 1};          // Color - 30, 144, 255 - Purple
                 glLightfv(GL_LIGHT1, GL_DIFFUSE, purple);                              // Purple Light
                 break;
             }
                 
             case 2: {
-                GLfloat green[4] = {0.0f, 100.0f/255.0f, 0.0f, 1};                     // Color - 0,100,0 - Dark Green
-                glLightfv(GL_LIGHT1, GL_DIFFUSE, green);                               // Green Light
+                GLfloat dark_purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, dark_purple);                               // Purple Light
                 break;
             }
         }
@@ -426,13 +602,13 @@ void display()
             }
 
             case 2: {
-                GLfloat purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
-                glLightfv(GL_LIGHT1, GL_DIFFUSE, purple);                              // Purple Light
+                GLfloat blue[4] = {0.0f,0.0f,1.0f, 1};
+                glLightfv(GL_LIGHT1, GL_DIFFUSE, blue);                              // Blue Light
                 break;
             }
 
             case 0: {
-                GLfloat green[4] = {0.0f, 100.0f/255.0f, 0.0f, 1};                     // Color - 0,100,0 - Dark Green
+                GLfloat green[4] = {0, 1, 0, 1};
                 glLightfv(GL_LIGHT1, GL_DIFFUSE, green);                               // Green Light
                 break;
             }
@@ -451,37 +627,66 @@ void display()
     else {
         glDisable(GL_LIGHTING);
         }
+    
+    glColor3f(1,0,0);
+    cube(0,-1,0, 4,0.3,-4, 45);
     //--------------------------
-    // --- Draw Pumpkin ---
+    // --- Draw Pumpkin 1 ---
     glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);   // COLOR = 210, 105, 30 // CHOCOLATE
     sphere_render(sphere_ptr, count_vert);                   // Draw Sphere
     
-    // ---  Draw Stems  ---
+    // ---  Draw Stem 1  ---
     Rotation rot = {30, 0, 0, 1};
     glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);          // COLOR = 128, 128, 0 // OLIVE
     cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot);                // Draw Cylinder
     
     //--------------------------
-    // --- Display Key Info ---
-    glColor3f(0,0,0);
+    // --- Draw Pumpkin 2 ---
+    glTranslated(1, -0.3, 2);
+    glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);   // COLOR = 210, 105, 30 // CHOCOLATE
+    sphere_render(sphere_ptr, count_vert);                   // Draw Sphere
     
-    glWindowPos2i(10,250);       // Bottom Left Corner
+    // ---  Draw Stem 2  ---
+    Rotation rot2 = {45, 0, 0, 1.5};
+    glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);          // COLOR = 128, 128, 0 // OLIVE
+    cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot2);                // Draw Cylinder
+    glTranslated(0.8, -0.5, 2);
+    
+    //--------------------------
+    // --- Draw Pumpkin 3 ---
+    glTranslated(-4, 0, -5);
+    glColor3f(210.0f/255.0f, 105.0f/255.0f, 30.0f/255.0f);   // COLOR = 210, 105, 30 // CHOCOLATE
+    sphere_render(sphere_ptr, count_vert/2);                   // Draw Sphere
+
+    // ---  Draw Stem 3  ---
+    Rotation rot3 = {-35, -2, 0, 0.5};
+    glColor3f(128.0f/255.0f, 128.0f/255.0f, 0.0f);          // COLOR = 128, 128, 0 // OLIVE
+    cylinder(0.2, 1, 150, 0.2, 0.5, 0, rot3);                // Draw Cylinder
+
+    //--------------------------
+    // --- Display Key Info ---
+    glColor3f(0,0,1);
+    
+    glWindowPos2i(10,290);       // Bottom Left Corner
     Text("Esc - Exit");
     
-    glWindowPos2i(10,210);
+    glWindowPos2i(10,250);
     Text("0 - Reset");
     
-    glWindowPos2i(10,170);
+    glWindowPos2i(10,210);
     Text("v - View");
     
-    glWindowPos2i(10,130);
+    glWindowPos2i(10,170);
     Text("1 - Light On/Off");
     
-    glWindowPos2i(10,90);
+    glWindowPos2i(10,130);
     Text("2 - Change Color");
     
-    glWindowPos2i(10,50);
+    glWindowPos2i(10,90);
     Text("3 - Stop/Start Light");
+    
+    glWindowPos2i(10,50);
+    Text("4/5 - Zoom In/Out");
     
     glWindowPos2i(10,10);
     Text("Arrows - Up/Down, Left/Right");
@@ -504,6 +709,15 @@ void keys(unsigned char key, int x, int y)
   else if (key == 'v')                    // Switch View - Ortho vs. Pers
      modeV = 1 - modeV;
     
+  else if (key == '5'){                    // Zoom Out
+    field -= 5;
+    view_ortho += 0.1;
+  }
+  else if (key == '4'){                    // Zoom In
+    field += 5;
+    view_ortho -= 0.1;
+  }
+    
   else if (key == '1')                    // 1 - Turn Flashlight On/Off
      light_flash = 1 - light_flash;
   
@@ -513,7 +727,7 @@ void keys(unsigned char key, int x, int y)
   else if (key == '3')                    // 3 - Stop/Start Light
      light_mov = -1 * light_mov;
     
-   View();                                // Reset View
+   //View();                                // Reset View
     
    glutPostRedisplay();                   // Redisplay normal plane
 }
@@ -531,7 +745,7 @@ void arrows(int key, int x, int y) {
     else if (key == GLUT_KEY_DOWN)        // Down arrow - decrease by 5 degree
         elev -= 5;
     
-    View();                               // Reset View
+    //View();                               // Reset View
     
     glutPostRedisplay();
 }
@@ -556,14 +770,24 @@ int main(int argc,char* argv[])
     
    glutSpecialFunc(arrows);                                        // Special keys
     
-   //textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files
-   textImg[1] = LoadTexBMP("stem.bmp");
-    
+   textImg[0] = LoadTexBMP("pumpkin.bmp");                         // Load Texture Files
+   textImg[1] = LoadTexBMP("stalk-green.bmp");
+   textImg[2] = LoadTexBMP("grass.bmp");
+
+        
    glutMainLoop();                                                 // Enters the GLUT event processing loop
    
    return 0;                                                       // Return to OS
 }
 //______________________________________________________________________________________________________________
+
+//                GLfloat purple[4] = {70.0f/255.0f, 130.0f/255.0f, 180.0f/255.0f, 1};   // Color - 70, 130, 180 - Dark Purple
+//                GLfloat purple[4] = {0.0f, 0.0f, 255.0f, 1};          // Color - 30, 144, 255 - Purple
+                //GLfloat red[4] = {102.0f/255.0f, 153.0f/255.0f, 1.0f, 1};
+
+//                GLfloat orange[4] = {205.0f/255.0f, 133.0f/255.0f, 63.0f/255.0f, 1};    // Color - 205, 133, 63 - Dark Orange
+//                GLfloat green[4] = {0.0f, 100.0f/255.0f, 0.0f, 1};                     // Color - 0,100,0 - Dark Green
+
 
 //        // Enable Textures
 //        glEnable(GL_TEXTURE_2D);

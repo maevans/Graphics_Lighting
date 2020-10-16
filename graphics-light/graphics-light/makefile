@@ -33,6 +33,9 @@ endif
 light:light.o
 	g++ -O3 -o $@ $^   $(LIBS)
 
+loadtexbmp:loadtexbmp.o
+	gcc -O3 -o $@ $^   $(LIBS)
+
 #  Clean
 clean:
 	$(CLEAN)

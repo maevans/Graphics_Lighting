@@ -35,7 +35,7 @@
 		B8030DE72535168800A7346C /* light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = light.cpp; sourceTree = "<group>"; };
 		B8030DF1253518C600A7346C /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		B8030DF3253518D000A7346C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		B87EA9AA2538B1F0001D2816 /* stem.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = stem.bmp; path = "/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/stem.bmp"; sourceTree = "<absolute>"; };
+		B87EA9AA2538B1F0001D2816 /* grass.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = grass.bmp; path = "/Users/mahaliaevans/Documents/GitHub/graphics_lighting/graphics-light/graphics-light/grass.bmp"; sourceTree = "<absolute>"; };
 		B87EA9B82538FBC1001D2816 /* CSCIx229.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSCIx229.h; sourceTree = "<group>"; };
 		B87EA9E52539293E001D2816 /* errcheck.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = errcheck.c; sourceTree = "<group>"; };
 		B87EA9E825392951001D2816 /* project.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = project.c; sourceTree = "<group>"; };
@@ -43,7 +43,8 @@
 		B87EA9EA25392951001D2816 /* print.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = print.c; sourceTree = "<group>"; };
 		B87EA9EF2539295A001D2816 /* fatal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fatal.c; sourceTree = "<group>"; };
 		B87EA9F22539297B001D2816 /* loadtexbmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadtexbmp.c; sourceTree = "<group>"; };
-		B87EAA0425394843001D2816 /* green-stem.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "green-stem.bmp"; sourceTree = "<group>"; };
+		B87EAA122539579B001D2816 /* stalk-green.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = "stalk-green.bmp"; sourceTree = "<group>"; };
+		B87EAA1425395891001D2816 /* pumpkin.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = pumpkin.bmp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,7 +81,8 @@
 			isa = PBXGroup;
 			children = (
 				B8030DE72535168800A7346C /* light.cpp */,
-				B87EAA0425394843001D2816 /* green-stem.bmp */,
+				B87EAA1425395891001D2816 /* pumpkin.bmp */,
+				B87EAA122539579B001D2816 /* stalk-green.bmp */,
 				B87EA9E52539293E001D2816 /* errcheck.c */,
 				B87EA9EF2539295A001D2816 /* fatal.c */,
 				B87EA9F22539297B001D2816 /* loadtexbmp.c */,
@@ -88,7 +90,7 @@
 				B87EA9EA25392951001D2816 /* print.c */,
 				B87EA9E825392951001D2816 /* project.c */,
 				B87EA9B82538FBC1001D2816 /* CSCIx229.h */,
-				B87EA9AA2538B1F0001D2816 /* stem.bmp */,
+				B87EA9AA2538B1F0001D2816 /* grass.bmp */,
 			);
 			path = "graphics-light";
 			sourceTree = "<group>";
